@@ -38,11 +38,12 @@ mMSbarQ as q = do
     return (mQ * c, mQ)
 
 -- | the running mass at the given scale.
-mMSbarMu :: MonadIO m => AlphaS -> Double -> MassiveQuark -> m Double
-mMSbarMu as scale q = do
+mMSbar :: MonadIO m => AlphaS -> Double -> MassiveQuark -> m Double
+mMSbar as scale q = do
     (mqMS, mqPole) <- mMSbarQ as q
 
-    (a0, a1) <- mapM (alphasQ as) (mqPole, scale)
+    a0 <- alphasQ as mqPole
+    a1 <- alphasQ as scale
     cs <- zipWithM cAlphaRG [a0, a1] [mqPole, scale]
 
     return $ case cs of
