@@ -15,7 +15,7 @@ poleMass q | q == Top    = 173.0
            | q == Charm  =   1.67
            | otherwise   =   0.0
 
-nLight :: MassiveQuark -> Double
+nLight :: MassiveQuark -> Int
 nLight q | q == Top    = 5
          | q == Bottom = 4
          | q == Charm  = 3
@@ -25,10 +25,10 @@ nLight q | q == Top    = 5
 mMSbarQ :: MonadIO m
         => AlphaS
         -> MassiveQuark
-        -> m (Double, Double)  -- ^ (MSbar mass, pole mass)
+        -> m (Mass, Mass)  -- ^ (MSbar mass, pole mass)
 mMSbarQ as q = do
     let mQ = poleMass q
-        nf = nLight q
+        nf = (fromIntegral . nLight) q
 
     x <- (/pi) <$> alphasQ as mQ
 
@@ -38,7 +38,7 @@ mMSbarQ as q = do
     return (mQ * c, mQ)
 
 -- | the running mass at the given scale.
-mMSbar :: MonadIO m => AlphaS -> Double -> MassiveQuark -> m Double
+mMSbar :: MonadIO m => AlphaS -> Double -> MassiveQuark -> m Mass
 mMSbar as scale q = do
     (mqMS, mqPole) <- mMSbarQ as q
 
