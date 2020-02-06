@@ -1,4 +1,4 @@
-module HEP.Data.Quark where
+module HEP.Data.Quark (mMSbar) where
 
 import HEP.Data.AlphaS        (AlphaS, alphasQ)
 import HEP.Data.Constants     (Mass, mb, mc, mt)
