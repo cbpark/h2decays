@@ -5,6 +5,7 @@ import HEP.Data.Constants     (mtau)
 import HEP.Data.Kinematics    (Mass (..), betaF, massSq)
 import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
+import HEP.Data.Util (dilog)
 
 import Control.Monad.IO.Class (MonadIO)
 
@@ -45,3 +46,31 @@ gammaQQH2 q as typ m@(Mass mH) angles = do
                    + 1.0 / 9 * log (massSq mqMS / mH2) ** 2) * x ** 2
 
     return $ 3 * mH * gH * gH * beta ** 3 / (32 * pi) * (1 + deltaQQ + deltaH2)
+
+gammaTTH2 :: MonadIO m
+          => AlphaS -> THDMType -> Mass -> (Double, Double) -> m Double
+gammaTTH2 as typ m@(Mass mH) angles = do
+    mtMS <- mMSbar as mH Top
+    let gH = gHUU typ mtMS angles
+        betaPole = betaF m (poleMass Top)
+        betaMS   = betaF m mtMS
+        betaMS2  = betaMS * betaMS
+        kappa    = (1 - betaMS) / (1 + betaMS)
+        logKappa = log kappa
+
+        -- Eq. (2.15) of https://arxiv.org/abs/hep-ph/0503172
+        aBeta = (1 + betaMS2)
+                * (4 * dilog kappa + 2 * dilog (-kappa)
+                   + 3 * logKappa * log (2 / (1 + betaMS))
+                   + 2 * logKappa * log betaMS)
+                - 3 * betaMS * log (4 / (1 - betaMS2)) - 4 * betaMS * log betaMS
+
+        -- Eq. (2.14) of https://arxiv.org/abs/hep-ph/0503172
+        deltaH = aBeta / betaMS
+                 - (3 + 34 * betaMS2
+                    - 13 * betaMS2 ** 2) / (16 * betaMS ** 3) * logKappa
+                 + 3 * (7 * betaMS2 - 1) / (8 * betaMS2)
+
+    x <- (/pi) <$> alphasQ as mH
+    return $ 3 * mH * gH * gH * betaPole ** 3 / (32 * pi)
+             * (1 + 4.0 / 3 * x * deltaH)

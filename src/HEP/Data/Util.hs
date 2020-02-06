@@ -12,3 +12,8 @@ sinBetaAlpha :: Double  -- ^ tan(beta)
 sinBetaAlpha tanb cosba = let b = atan tanb
                               a = piHalf (b - acos cosba)
                           in sin (b - a)
+
+foreign import ccall "gsl_sf_dilog" gsl_sf_dilog :: Double -> Double
+
+dilog :: Double -> Double
+dilog = gsl_sf_dilog

@@ -35,4 +35,4 @@ executable h2decays
   cxx-sources:         csrc/alphas.cc
   include-dirs:        csrc
   cxx-options:         -g -O2 -m64 -Wall -Wextra -pedantic -fPIC
-  extra-libraries:     LHAPDF, stdc++
+  extra-libraries:     gsl, gslcblas, LHAPDF, stdc++
