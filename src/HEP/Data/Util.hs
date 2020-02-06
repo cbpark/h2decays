@@ -9,6 +9,6 @@ piHalf th | th >=  pi12 = piHalf $! th - pi
 sinBetaAlpha :: Double  -- ^ tan(beta)
              -> Double  -- ^ cos(beta - alpha)
              -> Double
-sinBetaAlpha tb cba = let b = atan tb
-                          a = piHalf (b - acos cba)
-                      in sin (b - a)
+sinBetaAlpha tanb cosba = let b = atan tanb
+                              a = piHalf (b - acos cosba)
+                          in sin (b - a)
