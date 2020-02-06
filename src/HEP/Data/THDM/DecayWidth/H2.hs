@@ -8,6 +8,7 @@ import HEP.Data.THDM.Coupling
 import HEP.Data.Util          (dilog)
 
 import Control.Monad.IO.Class (MonadIO)
+import Data.Complex           (Complex (..))
 
 gammaTauTauH2 :: MonadIO m
               => AlphaS -> THDMType -> Mass -> (Double, Double) -> m Double
@@ -90,3 +91,9 @@ gammaWWH2, gammaZZH2 :: MonadIO m
                      => AlphaS -> THDMType -> Mass -> (Double, Double) -> m Double
 gammaWWH2 = gammaVVH2 Wboson
 gammaZZH2 = gammaVVH2 Zboson
+
+ftau :: Double -> Complex Double
+ftau tau | tau <= 1  = asin (sqrt tau) ** 2 :+ 0
+         | otherwise = let x = sqrt (1 - 1 / tau)
+                           arg = log ((1 + x) / (1 - x)) :+ (-pi)
+                       in - 0.25 * arg * arg
