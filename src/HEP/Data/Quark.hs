@@ -1,19 +1,18 @@
 module HEP.Data.Quark where
 
 import HEP.Data.AlphaS        (AlphaS, alphasQ)
+import HEP.Data.Constants     (Mass, mb, mc, mt)
 
 import Control.Monad          (zipWithM)
 import Control.Monad.IO.Class (MonadIO)
 
 data MassiveQuark = Top | Bottom | Charm deriving Eq
 
-type Mass = Double
-
 poleMass :: MassiveQuark -> Mass
-poleMass q | q == Top    = 173.0
-           | q == Bottom =   4.78
-           | q == Charm  =   1.67
-           | otherwise   =   0.0
+poleMass q | q == Top    = mt
+           | q == Bottom = mb
+           | q == Charm  = mc
+           | otherwise   = 0
 
 nLight :: MassiveQuark -> Int
 nLight q | q == Top    = 5
@@ -54,7 +53,8 @@ cAlphaRG :: MonadIO m => Double -> Double -> m (Maybe Double)
 cAlphaRG aSmu scale
     | scale < mc = return Nothing
     | otherwise  = do
-          let (a0, c0, b0, b1, b2, b3)
+          let x = aSmu / pi
+              (a0, c0, b0, b1, b2, b3)
                   | scale < mb =
                         (25.0/6, 12.0/25, 1, 1.01413,  1.38921,  1.09054 )
                   | scale < mt =
@@ -63,8 +63,3 @@ cAlphaRG aSmu scale
                         ( 7.0/2,  4.0/ 7, 1, 1.139796, 1.79348, -0.683433)
           return . Just $ (a0 * x) ** c0
                           * (b0 + b1 * x + b2 * x ** 2 + b3 * x ** 3)
-    where
-      mc = poleMass Charm
-      mb = poleMass Bottom
-      mt = poleMass Top
-      x = aSmu / pi
