@@ -17,14 +17,16 @@ extra-source-files:  README.md
                      csrc/alphas.h
 
 executable h2decays
-  main-is:             Main.hs
+  main-is:             h2decays.hs
   other-modules:       HEP.Data.AlphaS
                        HEP.Data.Constants
                        HEP.Data.Kinematics
                        HEP.Data.Quark
                        HEP.Data.Util
+                       HEP.Data.THDM
                        HEP.Data.THDM.Coupling
                        HEP.Data.THDM.DecayWidth
+                       HEP.Data.THDM.DecayWidth.H2
   build-depends:       base ^>=4.12.0.0
   hs-source-dirs:      src
   default-language:    Haskell2010
