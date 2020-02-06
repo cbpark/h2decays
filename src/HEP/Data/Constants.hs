@@ -32,12 +32,27 @@ gW     = sqrt gW2
 
 vEW, vEW2 :: Double
 vEW2 = 2 * mW2 / gW2
-vEW  = sqrt vEW
+vEW  = sqrt vEW2
 
 sinThetaW2, alpha, alphasMZ :: Double
 sinThetaW2 = 0.23122
 alpha      = gW2 * sinThetaW2 / (4 * pi)
-alphasMZ   = 0.1179
+alphasMZ   = 0.118
+
+vUD, vUS, vUB, vCD, vCS, vCB, vTD, vTS, vTB :: Double
+vUD = 0.97446
+vUS = 0.22452
+vUB = 0.00365
+vCD = 0.22438
+vCS = 0.97359
+vCB = 0.04214
+vTD = 0.00896
+vTS = 0.04133
+vTB = 0.999105
 
 sqrt2 :: Double
 sqrt2 = 1.4142135623730951
+
+pi2, pi3 :: Double
+pi2 = 9.869604401089358
+pi3 = 31.006276680299816
