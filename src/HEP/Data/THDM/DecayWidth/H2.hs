@@ -5,7 +5,7 @@ import HEP.Data.Constants     (mtau)
 import HEP.Data.Kinematics    (Mass (..), betaF, massSq)
 import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
-import HEP.Data.Util (dilog)
+import HEP.Data.Util          (dilog)
 
 import Control.Monad.IO.Class (MonadIO)
 
