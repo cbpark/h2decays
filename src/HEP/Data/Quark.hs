@@ -1,4 +1,4 @@
-module HEP.Data.Quark (mMSbar) where
+module HEP.Data.Quark (MassiveQuark (..), poleMass, nLightQ, mMSbar) where
 
 import HEP.Data.AlphaS        (AlphaS, alphasQ)
 import HEP.Data.Constants     (mb, mc, mt)
@@ -15,11 +15,11 @@ poleMass q | q == Top    = mt
            | q == Charm  = mc
            | otherwise   = Mass 0
 
-nLight :: MassiveQuark -> Int
-nLight q | q == Top    = 5
-         | q == Bottom = 4
-         | q == Charm  = 3
-         | otherwise   = 0
+nLightQ :: MassiveQuark -> Double
+nLightQ q | q == Top    = 5
+          | q == Bottom = 4
+          | q == Charm  = 3
+          | otherwise   = 0
 
 -- | the running mass at quark pole mass.
 mMSbarQ :: MonadIO m
@@ -28,7 +28,7 @@ mMSbarQ :: MonadIO m
         -> m (Mass, Mass)  -- ^ (MSbar mass, pole mass)
 mMSbarQ as q = do
     let mq@(Mass mQ) = poleMass q
-        nf = (fromIntegral . nLight) q
+        nf = nLightQ q
 
     x <- (/pi) <$> alphasQ as mQ
 
