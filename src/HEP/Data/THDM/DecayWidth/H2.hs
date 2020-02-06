@@ -1,8 +1,8 @@
 module HEP.Data.THDM.DecayWidth.H2 where
 
 import HEP.Data.AlphaS        (AlphaS, alphasQ)
-import HEP.Data.Constants     (mtau)
-import HEP.Data.Kinematics    (Mass (..), betaF, massSq)
+import HEP.Data.Constants     (mW, mZ, mtau, vEW2)
+import HEP.Data.Kinematics    (Mass (..), betaF, massRatio, massSq)
 import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
 import HEP.Data.Util          (dilog)
@@ -74,3 +74,19 @@ gammaTTH2 as typ m@(Mass mH) angles = do
     x <- (/pi) <$> alphasQ as mH
     return $ 3 * mH * gH * gH * betaPole ** 3 / (32 * pi)
              * (1 + 4.0 / 3 * x * deltaH)
+
+data EWBosons = Wboson | Zboson deriving Eq
+
+gammaVVH2 :: MonadIO m
+          => EWBosons -> AlphaS -> THDMType -> Mass -> (Double, Double) -> m Double
+gammaVVH2 v _ _ m@(Mass mH) (_, cosba) = do
+    let (deltaV, x) | v == Wboson = (2, mW `massRatio` m)
+                    | otherwise   = (1, mZ `massRatio` m)
+        x2 = x * x
+    return $ deltaV * mH ** 3 * cosba ** 2 / (64 * pi * vEW2)
+             * sqrt (1 - 4 * x2) * (1 - 4 * x2 + 12 * x2 * x2)
+
+gammaWWH2, gammaZZH2 :: MonadIO m
+                     => AlphaS -> THDMType -> Mass -> (Double, Double) -> m Double
+gammaWWH2 = gammaVVH2 Wboson
+gammaZZH2 = gammaVVH2 Zboson

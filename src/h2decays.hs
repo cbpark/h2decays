@@ -3,7 +3,6 @@ module Main where
 import HEP.Data.AlphaS     (alphasQ, mkAlphaS)
 import HEP.Data.Kinematics
 import HEP.Data.THDM
--- import HEP.Data.Util       (dilog)
 
 main :: IO ()
 main = do
@@ -14,5 +13,5 @@ main = do
     gammaCCH2     as TypeII (Mass 500) (3, 0.1) >>= print
     gammaBBH2     as TypeII (Mass 500) (3, 0.1) >>= print
     gammaTTH2     as TypeII (Mass 500) (3, 0.1) >>= print
-
-    -- print $ dilog 0.5
+    gammaWWH2     as TypeII (Mass 500) (3, 0.1) >>= print
+    gammaZZH2     as TypeII (Mass 500) (3, 0.1) >>= print
