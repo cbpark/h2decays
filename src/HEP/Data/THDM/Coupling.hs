@@ -1,25 +1,26 @@
 module HEP.Data.THDM.Coupling where
 
-import HEP.Data.Constants (Mass, gW, mW)
-import HEP.Data.Util      (sinBetaAlpha)
+import HEP.Data.Constants  (gW, mW)
+import HEP.Data.Kinematics (Mass (..), massRatio)
+import HEP.Data.Util       (sinBetaAlpha)
 
 data THDMType = TypeI | TypeII | UnknownType deriving Eq
 
-gHff :: Mass                -- ^ fermion mass
+gHff :: (Double -> Double)  -- ^ function to get the coefficient
      -> Double              -- ^ tan(beta)
      -> Double              -- ^ cos(beta - alpha)
-     -> (Double -> Double)  -- ^ function to get the coefficient
+     -> Mass                -- ^ fermion mass
      -> Double
-gHff mf tb cba cFunc = let sinba = sinBetaAlpha tb cba
-                           coeff = cFunc sinba
-                       in gW * mf / mW * coeff
+gHff cfunc tanb cosba mf = let sinba = sinBetaAlpha tanb cosba
+                               coeff = cfunc sinba
+                           in gW * (mf `massRatio` mW) * coeff
 
-gHuu :: THDMType
+gHUU :: THDMType
      -> Mass    -- ^ fermion mass
      -> Double  -- ^ tan(beta)
      -> Double  -- ^ cos(beta - alpha)
      -> Double
-gHuu typ mu tanb cosba = gHff mu tanb cosba cfunc
+gHUU typ mU tanb cosba = gHff cfunc tanb cosba mU
   where
     cfunc sinba | typ == TypeI || typ == TypeII = cosba - sinba / tanb
                 | otherwise                     = 0

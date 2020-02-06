@@ -1,29 +1,29 @@
 module HEP.Data.Constants where
 
-type Mass = Double
+import HEP.Data.Kinematics (Mass (..), massSq)
 
 mW, mZ, mh :: Mass
-mW = 80.379
-mZ = 91.1876
-mh = 125.0
+mW = Mass 80.379
+mZ = Mass 91.1876
+mh = Mass 125.0
 
 mW2, mZ2, mh2 :: Double
-mW2 = mW * mW
-mZ2 = mZ * mZ
-mh2 = mh * mh
+mW2 = massSq mW
+mZ2 = massSq mZ
+mh2 = massSq mh
 
 -- | pole masses
 mt, mb, mc, mtau :: Mass
-mt   = 173.0
-mb   = 4.78
-mc   = 1.67
-mtau = 1.777
+mt   = Mass 173.0
+mb   = Mass 4.78
+mc   = Mass 1.67
+mtau = Mass 1.777
 
 mt2, mb2, mc2, mtau2 :: Double
-mt2   = mt * mt
-mb2   = mb * mb
-mc2   = mc * mc
-mtau2 = mtau * mtau
+mt2   = massSq mt
+mb2   = massSq mb
+mc2   = massSq mc
+mtau2 = massSq mtau
 
 gFermi, gW, gW2 :: Double
 gFermi = 1.1663787e-5
