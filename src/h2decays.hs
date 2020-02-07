@@ -26,3 +26,6 @@ main = do
     h2hh     as input >>= print
     h2HpHm   as input >>= print
     h2HpWm   as input >>= print
+
+    hpTauTau as input >>= print
+    hpWph    as input >>= print

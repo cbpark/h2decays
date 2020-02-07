@@ -27,6 +27,7 @@ executable h2decays
                        HEP.Data.THDM.Coupling
                        HEP.Data.THDM.DecayWidth
                        HEP.Data.THDM.DecayWidth.H2
+                       HEP.Data.THDM.DecayWidth.Hp
                        HEP.Data.THDM.Model
   build-depends:       base ^>=4.12.0.0
   hs-source-dirs:      src

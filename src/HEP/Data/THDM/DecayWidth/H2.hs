@@ -2,19 +2,18 @@
 
 module HEP.Data.THDM.DecayWidth.H2 where
 
-import HEP.Data.AlphaS        (AlphaS, alphasQ)
+import HEP.Data.AlphaS        (alphasQ)
 import HEP.Data.Constants
 import HEP.Data.Kinematics    (Mass (..), betaF, massRatio, massSq)
 import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
-import HEP.Data.THDM.Model    (InputParam (..))
+import HEP.Data.THDM.Model    (DecayWidth, InputParam (..))
 import HEP.Data.Util          (dilog, lambdaF, sinBetaAlpha)
 
 import Control.Monad.IO.Class (MonadIO)
 import Data.Complex           (Complex (..), magnitude)
 
-type DecayWidth m = AlphaS -> InputParam -> m Double
-
+-- | H --> tau^+ tau^-
 h2TauTau :: MonadIO m => DecayWidth m
 h2TauTau _ InputParam {..} = do
     let gH | mdtyp == TypeI  = gHTauTauI  angs
@@ -25,7 +24,9 @@ h2TauTau _ InputParam {..} = do
     return $ getMass mH * gH * gH * beta ** 3 / (32 * pi)
 
 h2BB, h2CC :: MonadIO m => DecayWidth m
+-- | H --> b bbar
 h2BB = h2QQ Bottom
+-- | H --> c cbar
 h2CC = h2QQ Charm
 
 h2QQ :: MonadIO m => MassiveQuark -> DecayWidth m
@@ -49,6 +50,7 @@ h2QQ q as InputParam {..} = do
 
     return $ 3 * m * gH * gH * beta ** 3 / (32 * pi) * (1 + deltaQQ + deltaH2)
 
+-- | H --> t tbar
 h2TT :: MonadIO m => DecayWidth m
 h2TT as InputParam {..} = do
     let m = getMass mH
@@ -90,12 +92,15 @@ h2VV v _ InputParam {..} = do
              * sqrt (1 - 4 * x2) * (1 - 4 * x2 + 12 * x2 * x2)
 
 h2WW, h2ZZ :: MonadIO m => DecayWidth m
+-- | H --> W W
 h2WW = h2VV Wboson
+-- | H --> Z Z
 h2ZZ = h2VV Zboson
 
 argF :: Double -> Mass -> Double -> Complex Double
 argF m2 (Mass mq) coup = (coup / mq *) <$> a12 (m2 / (4 * mq * mq))
 
+-- | H --> g g
 h2GG :: MonadIO m => DecayWidth m
 h2GG as InputParam {..} = do
     let m = getMass mH
@@ -112,6 +117,7 @@ h2GG as InputParam {..} = do
 
     return $ alphas ** 2 * m ** 3 / (144 * pi3 * vEW2) * magnitude args ** 2
 
+-- | H --> gamma gamma
 h2GaGa :: MonadIO m => DecayWidth m
 h2GaGa as InputParam {..} = do
     let m = getMass mH
@@ -168,11 +174,14 @@ h2SS beta g symF _ InputParam {..} =
     return $ symF * g ** 2 / (32 * pi * getMass mH) * beta
 
 h2hh, h2HpHm :: MonadIO m => DecayWidth m
+-- | H --> h h
 h2hh   as inp@InputParam {..} =
     h2SS (betaF mH mh)  (gHhh mH mA angs)       1 as inp
+-- | H --> H^+ H^-
 h2HpHm as inp@InputParam {..} =
     h2SS (betaF mH mHp) (gHHpHm mH mA mHp angs) 2 as inp
 
+-- | H --> H^+ W^-
 h2HpWm :: MonadIO m => DecayWidth m
 h2HpWm _ InputParam {..} = do
     let sinba = uncurry sinBetaAlpha angs
