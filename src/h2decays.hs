@@ -3,6 +3,7 @@ module Main where
 import HEP.Data.AlphaS     (alphasQ, mkAlphaS)
 import HEP.Data.Kinematics
 import HEP.Data.THDM
+import HEP.Data.Util       (mkAngles)
 
 main :: IO ()
 main = do
@@ -13,7 +14,7 @@ main = do
                            , mH    = Mass 650
                            , mA    = Mass 650
                            , mHp   = Mass 300
-                           , angs  = (3, 0.1) }
+                           , angs  = mkAngles 3 0.1 }
 
     h2TauTau as input >>= print
     h2MuMu   as input >>= print

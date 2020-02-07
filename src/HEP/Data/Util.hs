@@ -1,21 +1,39 @@
-module HEP.Data.Util where
+module HEP.Data.Util
+    (
+      Angles
+    , mkAngles
+    , tanBeta
+    , tan2Beta
+    , cosBetaAlpha
+    , sinBetaAlpha
+    , lambdaF
+    , dilog
+    ) where
+
+newtype Angles = Angles (Double, Double) deriving Show
+
+mkAngles :: Double -> Double -> Angles
+mkAngles tanb cosba = Angles (tanb, cosba)
+
+tanBeta :: Angles -> Double
+tanBeta (Angles (tanb, _)) = tanb
+
+tan2Beta :: Angles -> Double
+tan2Beta (Angles (tanb, _)) = 2 * tanb / (1 - tanb * tanb)
+
+cosBetaAlpha :: Angles -> Double
+cosBetaAlpha (Angles (_, cosba)) = cosba
+
+sinBetaAlpha :: Angles -> Double
+sinBetaAlpha (Angles (tanb, cosba)) = let b = atan tanb
+                                          a = piHalf (b - acos cosba)
+                                      in sin (b - a)
 
 piHalf :: Double -> Double
 piHalf th | th >=  pi12 = piHalf $! th - pi
           | th <  -pi12 = piHalf $! th + pi
           | otherwise   = th
   where pi12 = pi / 2
-
-sinBetaAlpha :: Double  -- ^ tan(beta)
-             -> Double  -- ^ cos(beta - alpha)
-             -> Double
-sinBetaAlpha tanb cosba = let b = atan tanb
-                              a = piHalf (b - acos cosba)
-                          in sin (b - a)
-
--- | tan(2 beta)
-tan2Beta :: Double -> Double
-tan2Beta tanb = 2 * tanb / (1 - tanb * tanb)
 
 lambdaF :: Double -> Double -> Double -> Double
 lambdaF x y z = max 0 lam

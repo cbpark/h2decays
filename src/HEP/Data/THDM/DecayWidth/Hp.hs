@@ -7,7 +7,7 @@ import HEP.Data.Kinematics    (Mass (..), massRatio, massSq)
 import HEP.Data.Quark         (mMSbarHeavy)
 import HEP.Data.THDM.Coupling (THDMType (..))
 import HEP.Data.THDM.Model    (DecayWidth, InputParam (..))
-import HEP.Data.Util          (lambdaF)
+import HEP.Data.Util          (cosBetaAlpha, lambdaF, tanBeta)
 
 import Control.Monad.IO.Class (MonadIO)
 
@@ -17,7 +17,7 @@ hpTB as InputParam {..} = do
     let m = getMass mHp
     (mtMS, mbMS, _) <- mMSbarHeavy as m
 
-    let (tanb, _) = angs
+    let tanb = tanBeta angs
         tanb2 = tanb * tanb
         [mtPole, mtMSVal, mbPole, mbMSVal] = getMass <$> [mt, mtMS, mb, mbMS]
         mtRatio2 = (mtPole / m) ** 2
@@ -46,7 +46,7 @@ hpCS as InputParam {..} = do
     let m = getMass mH
     (_, _, mcMS) <- mMSbarHeavy as m
 
-    let (tanb, _) = angs
+    let tanb = tanBeta angs
         facCoup | mdtyp == TypeI || mdtyp == TypeII = massSq mcMS / (tanb ** 2)
                 | otherwise                         = 0
 
@@ -56,7 +56,7 @@ hpCS as InputParam {..} = do
 
 hpLL :: MonadIO m => Double -> DecayWidth m
 hpLL ml2 _ InputParam {..} = do
-    let (tanb, _) = angs
+    let tanb = tanBeta angs
         facTan | mdtyp == TypeI  = 1 / (tanb * tanb)
                | mdtyp == TypeII = tanb * tanb
                | otherwise       = 0
@@ -73,7 +73,7 @@ hpMuMu   = hpLL mmu2
 -- | H^+ --> W^+ h
 hpWph :: MonadIO m => DecayWidth m
 hpWph _ InputParam {..} = do
-    let (_, cosba) = angs
+    let cosba = cosBetaAlpha angs
         y = mW `massRatio` mHp
         z = mh `massRatio` mHp
     return $ gW2 * cosba * cosba * getMass mHp / (64 * pi * mW2)

@@ -8,7 +8,7 @@ import HEP.Data.Kinematics    (Mass (..), betaF, massRatio, massSq)
 import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
 import HEP.Data.THDM.Model    (DecayWidth, InputParam (..))
-import HEP.Data.Util          (dilog, lambdaF, sinBetaAlpha)
+import HEP.Data.Util          (cosBetaAlpha, dilog, lambdaF, sinBetaAlpha)
 
 import Control.Monad.IO.Class (MonadIO)
 import Data.Complex           (Complex (..), magnitude)
@@ -89,7 +89,7 @@ data EWBosons = Wboson | Zboson deriving Eq
 h2VV :: MonadIO m => EWBosons -> DecayWidth m
 h2VV v _ InputParam {..} = do
     let m = getMass mH
-        (_, cosba) = angs
+        cosba = cosBetaAlpha angs
         (deltaV, x) | v == Wboson = (2, mW `massRatio` mH)
                     | otherwise   = (1, mZ `massRatio` mH)
         x2 = x * x
@@ -144,7 +144,7 @@ h2GaGa as InputParam {..} = do
                 [mtMS, mbMS, mcMS, mtau]
                 [3 * qt2 * gHtt, 3 * qb2 * gHbb, 3 * qc2 * gHcc, qta2 * gHTaTa])
 
-        (_, cosba) = angs
+        cosba = cosBetaAlpha angs
         -- W contributions
         arg2 = (cosba *) <$> a1 (m2 / (4 * massSq mW))
 
@@ -189,7 +189,7 @@ h2HpHm as inp@InputParam {..} =
 -- | H --> H^+ W^-
 h2HpWm :: MonadIO m => DecayWidth m
 h2HpWm _ InputParam {..} = do
-    let sinba = uncurry sinBetaAlpha angs
+    let sinba = sinBetaAlpha angs
         m = getMass mH
         y = mHp `massRatio` mH
         z = mW `massRatio` mH
