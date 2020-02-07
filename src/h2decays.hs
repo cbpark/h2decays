@@ -25,3 +25,4 @@ main = do
     h2GaGa   as input >>= print
     h2hh     as input >>= print
     h2HpHm   as input >>= print
+    h2HpWm   as input >>= print

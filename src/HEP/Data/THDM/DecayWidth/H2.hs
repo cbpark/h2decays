@@ -8,7 +8,7 @@ import HEP.Data.Kinematics    (Mass (..), betaF, massRatio, massSq)
 import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
 import HEP.Data.THDM.Model    (InputParam (..))
-import HEP.Data.Util          (dilog)
+import HEP.Data.Util          (dilog, lambdaF, sinBetaAlpha)
 
 import Control.Monad.IO.Class (MonadIO)
 import Data.Complex           (Complex (..), magnitude)
@@ -172,3 +172,13 @@ h2hh   as inp@InputParam {..} =
     h2SS (betaF mH mh)  (gHhh mH mA angs)       1 as inp
 h2HpHm as inp@InputParam {..} =
     h2SS (betaF mH mHp) (gHHpHm mH mA mHp angs) 2 as inp
+
+h2HpWm :: MonadIO m => DecayWidth m
+h2HpWm _ InputParam {..} = do
+    let (tanb, cosba) = angs
+        sinba = sinBetaAlpha tanb cosba
+        m = getMass mH
+        y = mHp `massRatio` mH
+        z = mW `massRatio` mH
+        lam = lambdaF 1 (y * y) (z * z)
+    return $ gW2 * sinba ** 2 * m ** 3 / (64 * pi * mW2) * lam ** 1.5
