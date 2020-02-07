@@ -13,17 +13,19 @@ mZ2 = massSq mZ
 mh2 = massSq mh
 
 -- | pole masses
-mt, mb, mc, mtau :: Mass
+mt, mb, mc, mtau, mmu :: Mass
 mt   = Mass 173.0
 mb   = Mass 4.78
 mc   = Mass 1.67
 mtau = Mass 1.777
+mmu  = Mass 105.6583745e-3
 
-mt2, mb2, mc2, mtau2 :: Double
+mt2, mb2, mc2, mtau2, mmu2 :: Double
 mt2   = massSq mt
 mb2   = massSq mb
 mc2   = massSq mc
 mtau2 = massSq mtau
+mmu2  = massSq mmu
 
 gFermi, gW, gW2 :: Double
 gFermi = 1.1663787e-5

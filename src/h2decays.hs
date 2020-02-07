@@ -16,6 +16,7 @@ main = do
                            , angs  = (3, 0.1) }
 
     h2TauTau as input >>= print
+    h2MuMu   as input >>= print
     h2CC     as input >>= print
     h2BB     as input >>= print
     h2TT     as input >>= print
@@ -27,5 +28,8 @@ main = do
     h2HpHm   as input >>= print
     h2HpWm   as input >>= print
 
+    hpTB     as input >>= print
+    hpCS     as input >>= print
     hpTauTau as input >>= print
+    hpMuMu   as input >>= print
     hpWph    as input >>= print

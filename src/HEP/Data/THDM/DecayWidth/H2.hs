@@ -13,15 +13,20 @@ import HEP.Data.Util          (dilog, lambdaF, sinBetaAlpha)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Complex           (Complex (..), magnitude)
 
--- | H --> tau^+ tau^-
-h2TauTau :: MonadIO m => DecayWidth m
-h2TauTau _ InputParam {..} = do
+h2LL :: MonadIO m => Mass -> DecayWidth m
+h2LL ml _ InputParam {..} = do
     let gH | mdtyp == TypeI  = gHTauTauI  angs
            | mdtyp == TypeII = gHTauTauII angs
            | otherwise     = 0
 
-        beta = betaF mH mtau
+        beta = betaF mH ml
     return $ getMass mH * gH * gH * beta ** 3 / (32 * pi)
+
+h2TauTau, h2MuMu :: MonadIO m => DecayWidth m
+-- | H --> tau^+ tau^-
+h2TauTau = h2LL mtau
+-- | H --> mu^+ mu^-
+h2MuMu   = h2LL mmu
 
 h2BB, h2CC :: MonadIO m => DecayWidth m
 -- | H --> b bbar
