@@ -3,7 +3,7 @@
 module HEP.Data.THDM.DecayWidth.H2 where
 
 import HEP.Data.AlphaS        (AlphaS, alphasQ)
-import HEP.Data.Constants     (mW, mZ, mtau, vEW2)
+import HEP.Data.Constants     (mW, mZ, mtau, pi3, sqrt2, vEW, vEW2)
 import HEP.Data.Kinematics    (Mass (..), betaF, massRatio, massSq)
 import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
@@ -11,21 +11,18 @@ import HEP.Data.THDM.Model    (InputParam (..))
 import HEP.Data.Util          (dilog)
 
 import Control.Monad.IO.Class (MonadIO)
-import Data.Complex           (Complex (..))
+import Data.Complex           (Complex (..), magnitude)
 
--- type HiggsMass = (Mass, Mass, Mass)  -- ^ (H, A, H+) masses
--- type Angles = (Double, Double)  -- ^ (tan(beta), cos(beta - alpha))
 type DecayWidth m = AlphaS -> InputParam -> m Double
 
 h2TauTau :: MonadIO m => DecayWidth m
--- h2TauTau _ typ (m@(Mass mH), _, _) angles = do
 h2TauTau _ InputParam {..} = do
     let gH | mdtyp == TypeI  = gHTauTauI  angs
            | mdtyp == TypeII = gHTauTauII angs
            | otherwise     = 0
 
         beta = betaF mH mtau
-    return $ (getMass mH) * gH * gH * beta ** 3 / (32 * pi)
+    return $ getMass mH * gH * gH * beta ** 3 / (32 * pi)
 
 h2BB, h2CC :: MonadIO m => DecayWidth m
 h2BB = h2QQ Bottom
@@ -97,8 +94,38 @@ h2WW, h2ZZ :: MonadIO m => DecayWidth m
 h2WW = h2VV Wboson
 h2ZZ = h2VV Zboson
 
+h2GG :: MonadIO m => DecayWidth m
+h2GG as InputParam {..} = do
+    let m = getMass mH
+    alphas <- alphasQ as m
+    mtMS <- mMSbar as m Top
+    mbMS <- mMSbar as m Bottom
+    mcMS <- mMSbar as m Charm
+
+    let gHtt = gHUU mdtyp mtMS angs
+        gHbb = gHDD mdtyp mbMS angs
+        gHcc = gHUU mdtyp mcMS angs
+
+        m2 = m * m
+        argF coup (Mass mq) = (coup / mq *) <$> a12 (m2 / (4 * mq * mq))
+        args = (3 * vEW / (4 * sqrt2) *) <$>
+               sum (zipWith argF [gHtt, gHbb, gHcc] [mtMS, mbMS, mcMS])
+
+    return $ alphas * m ** 3 / (144 * pi3 * vEW2) * magnitude args ** 2
+
+a12 :: Double -> Complex Double
+a12 x = (2 / (x * x) *) <$> ((x :+ 0) + (((x - 1) *) <$> ftau x))
+
+a1 :: Double -> Complex Double
+a1 x = let x2 = x * x
+       in ((-1) / x2 *) <$>
+          (((2 * x2 + 3 * x) :+ 0) + ((3 * (2 * x - 1) *) <$> ftau x))
+
+a0 :: Double -> Complex Double
+a0 x = (1 / (x * x) *) <$> (ftau x - (x :+ 0))
+
 ftau :: Double -> Complex Double
-ftau tau | tau <= 1  = asin (sqrt tau) ** 2 :+ 0
-         | otherwise = let x = sqrt (1 - 1 / tau)
-                           arg = log ((1 + x) / (1 - x)) :+ (-pi)
-                       in - 0.25 * arg * arg
+ftau x | x <= 1  = asin (sqrt x) ** 2 :+ 0
+       | otherwise = let y = sqrt (1 - 1 / x)
+                         z = log ((1 + y) / (1 - y)) :+ (-pi)
+                     in - 0.25 * z * z
