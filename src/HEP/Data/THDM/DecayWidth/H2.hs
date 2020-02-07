@@ -3,7 +3,7 @@
 module HEP.Data.THDM.DecayWidth.H2 where
 
 import HEP.Data.AlphaS        (AlphaS, alphasQ)
-import HEP.Data.Constants     (mW, mZ, mtau, pi3, sqrt2, vEW, vEW2)
+import HEP.Data.Constants
 import HEP.Data.Kinematics    (Mass (..), betaF, massRatio, massSq)
 import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
@@ -41,7 +41,6 @@ h2QQ q as InputParam {..} = do
         deltaQQ = 5.67 * x
                   + (35.94 - 1.36 * nf) * x ** 2
                   + (164.14 - 25.77 * nf + 0.26 * nf * nf) * x ** 3
-        mt2 = massSq (poleMass Top)
         mH2 = m * m
         -- Eq.(2.12) of https://arxiv.org/abs/hep-ph/0503172
         deltaH2 = (1.57
@@ -94,24 +93,58 @@ h2WW, h2ZZ :: MonadIO m => DecayWidth m
 h2WW = h2VV Wboson
 h2ZZ = h2VV Zboson
 
+argF :: Double -> Mass -> Double -> Complex Double
+argF m2 (Mass mq) coup = (coup / mq *) <$> a12 (m2 / (4 * mq * mq))
+
 h2GG :: MonadIO m => DecayWidth m
 h2GG as InputParam {..} = do
     let m = getMass mH
+    (mtMS, mbMS, mcMS) <- mMSbarHeavy as m
     alphas <- alphasQ as m
-    mtMS <- mMSbar as m Top
-    mbMS <- mMSbar as m Bottom
-    mcMS <- mMSbar as m Charm
 
     let gHtt = gHUU mdtyp mtMS angs
         gHbb = gHDD mdtyp mbMS angs
         gHcc = gHUU mdtyp mcMS angs
 
         m2 = m * m
-        argF coup (Mass mq) = (coup / mq *) <$> a12 (m2 / (4 * mq * mq))
-        args = (3 * vEW / (4 * sqrt2) *) <$>
-               sum (zipWith argF [gHtt, gHbb, gHcc] [mtMS, mbMS, mcMS])
+        args = (3 * vEW / (4 * sqrt2) *) <$> sum
+               (zipWith (argF m2) [mtMS, mbMS, mcMS] [gHtt, gHbb, gHcc])
 
-    return $ alphas * m ** 3 / (144 * pi3 * vEW2) * magnitude args ** 2
+    return $ alphas ** 2 * m ** 3 / (144 * pi3 * vEW2) * magnitude args ** 2
+
+h2GaGa :: MonadIO m => DecayWidth m
+h2GaGa as InputParam {..} = do
+    let m = getMass mH
+    (mtMS, mbMS, mcMS) <- mMSbarHeavy as m
+
+    let gHtt = gHUU mdtyp mtMS angs
+        qt2 = 4.0 / 9
+        gHbb = gHDD mdtyp mbMS angs
+        qb2 = 1.0 / 9
+        gHcc = gHUU mdtyp mcMS angs
+        qc2 = qt2
+        gHTaTa = gHDD mdtyp mtau angs
+        qta2 = 1
+
+        m2 = m * m
+        -- fermion contributions
+        arg1 = (vEW / sqrt2 *) <$> sum
+               (zipWith (argF m2)
+                [mtMS, mbMS, mcMS, mtau]
+                [3 * qt2 * gHtt, 3 * qb2 * gHbb, 3 * qc2 * gHcc, qta2 * gHTaTa])
+
+        (_, cosba) = angs
+        -- W contributions
+        arg2 = (cosba *) <$> a1 (m2 / (4 * massSq mW))
+
+        mHp2 = massSq mHp
+        gHp = gHHpHm mH mA mHp angs
+        -- H+ contributions
+        arg3 = (vEW / (sqrt2 * mHp2) * gHp *) <$> a0 (m2 / (4 * mHp2))
+
+        args = arg1 + arg2 + arg3
+
+    return $ alpha ** 2 * m ** 3 / (512 * pi3 * vEW2) * magnitude args ** 2
 
 a12 :: Double -> Complex Double
 a12 x = (2 / (x * x) *) <$> ((x :+ 0) + (((x - 1) *) <$> ftau x))

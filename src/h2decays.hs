@@ -13,8 +13,7 @@ main = do
                            , mH    = Mass 500
                            , mA    = Mass 500
                            , mHp   = Mass 200
-                           , angs  = (3, 0.1)
-                           }
+                           , angs  = (3, 0.1) }
 
     h2TauTau as input >>= print
     h2CC     as input >>= print
@@ -23,3 +22,4 @@ main = do
     h2WW     as input >>= print
     h2ZZ     as input >>= print
     h2GG     as input >>= print
+    h2GaGa   as input >>= print
