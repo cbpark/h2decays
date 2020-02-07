@@ -12,8 +12,8 @@ import Data.Complex           (Complex (..))
 
 type DecayWidth m = AlphaS -> THDMType -> Mass -> (Double, Double) -> m Double
 
-gammaTauTauH2 :: MonadIO m => DecayWidth m
-gammaTauTauH2 _ typ m@(Mass mH) angles = do
+h2TauTau :: MonadIO m => DecayWidth m
+h2TauTau _ typ m@(Mass mH) angles = do
     let gH | typ == TypeI  = gHTauTauI  angles
            | typ == TypeII = gHTauTauII angles
            | otherwise     = 0
@@ -21,12 +21,12 @@ gammaTauTauH2 _ typ m@(Mass mH) angles = do
         beta = betaF m mtau
     return $ mH * gH * gH * beta ** 3 / (32 * pi)
 
-gammaBBH2, gammaCCH2 :: MonadIO m => DecayWidth m
-gammaBBH2 = gammaQQH2 Bottom
-gammaCCH2 = gammaQQH2 Charm
+h2BB, h2CC :: MonadIO m => DecayWidth m
+h2BB = h2QQ Bottom
+h2CC = h2QQ Charm
 
-gammaQQH2 :: MonadIO m => MassiveQuark -> DecayWidth m
-gammaQQH2 q as typ m@(Mass mH) angles = do
+h2QQ :: MonadIO m => MassiveQuark -> DecayWidth m
+h2QQ q as typ m@(Mass mH) angles = do
     mqMS <- mMSbar as mH q
     let gH = gHDD typ mqMS angles
         beta = betaF m (poleMass q)
@@ -46,8 +46,8 @@ gammaQQH2 q as typ m@(Mass mH) angles = do
 
     return $ 3 * mH * gH * gH * beta ** 3 / (32 * pi) * (1 + deltaQQ + deltaH2)
 
-gammaTTH2 :: MonadIO m => DecayWidth m
-gammaTTH2 as typ m@(Mass mH) angles = do
+h2TT :: MonadIO m => DecayWidth m
+h2TT as typ m@(Mass mH) angles = do
     mtMS <- mMSbar as mH Top
     let gH = gHUU typ mtMS angles
         betaPole = betaF m (poleMass Top)
@@ -75,17 +75,17 @@ gammaTTH2 as typ m@(Mass mH) angles = do
 
 data EWBosons = Wboson | Zboson deriving Eq
 
-gammaVVH2 :: MonadIO m => EWBosons -> DecayWidth m
-gammaVVH2 v _ _ m@(Mass mH) (_, cosba) = do
+h2VV :: MonadIO m => EWBosons -> DecayWidth m
+h2VV v _ _ m@(Mass mH) (_, cosba) = do
     let (deltaV, x) | v == Wboson = (2, mW `massRatio` m)
                     | otherwise   = (1, mZ `massRatio` m)
         x2 = x * x
     return $ deltaV * mH ** 3 * cosba ** 2 / (64 * pi * vEW2)
              * sqrt (1 - 4 * x2) * (1 - 4 * x2 + 12 * x2 * x2)
 
-gammaWWH2, gammaZZH2 :: MonadIO m => DecayWidth m
-gammaWWH2 = gammaVVH2 Wboson
-gammaZZH2 = gammaVVH2 Zboson
+h2WW, h2ZZ :: MonadIO m => DecayWidth m
+h2WW = h2VV Wboson
+h2ZZ = h2VV Zboson
 
 ftau :: Double -> Complex Double
 ftau tau | tau <= 1  = asin (sqrt tau) ** 2 :+ 0
