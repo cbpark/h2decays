@@ -4,7 +4,7 @@ import HEP.Data.Constants  (gW, mW, mtau)
 import HEP.Data.Kinematics (Mass (..), massRatio)
 import HEP.Data.Util       (sinBetaAlpha)
 
-data THDMType = TypeI | TypeII | UnknownType deriving Eq
+data THDMType = TypeI | TypeII | UnknownType deriving (Eq, Show)
 
 gHff :: (Double -> Double)  -- ^ a function to get the coefficient
      -> (Double, Double)    -- ^ (tan(beta), cos(beta - alpha))

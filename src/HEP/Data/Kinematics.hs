@@ -2,7 +2,7 @@
 
 module HEP.Data.Kinematics where
 
-newtype Mass = Mass Double deriving (Eq, Ord, Num, Show)
+newtype Mass = Mass { getMass :: Double } deriving (Eq, Ord, Num, Show)
 
 massSq :: Mass -> Double
 massSq (Mass m) = m * m
