@@ -13,6 +13,10 @@ sinBetaAlpha tanb cosba = let b = atan tanb
                               a = piHalf (b - acos cosba)
                           in sin (b - a)
 
+-- | tan(2 beta)
+tan2Beta :: Double -> Double
+tan2Beta tanb = 2 * tanb / (1 - tanb * tanb)
+
 foreign import ccall "gsl_sf_dilog" gsl_sf_dilog :: Double -> Double
 
 dilog :: Double -> Double
