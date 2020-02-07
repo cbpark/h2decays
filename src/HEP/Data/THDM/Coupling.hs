@@ -1,4 +1,13 @@
-module HEP.Data.THDM.Coupling where
+module HEP.Data.THDM.Coupling
+    (
+      gHUU
+    , gHDD
+    , gHTauTauI
+    , gHTauTauII
+    , gHhh
+    , gHHpHm
+    , THDMType (..)
+    ) where
 
 import HEP.Data.Constants  (gW, mW, mh2, mtau)
 import HEP.Data.Kinematics (Mass (..), massRatio, massSq)
