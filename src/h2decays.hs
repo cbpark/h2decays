@@ -10,9 +10,9 @@ main = do
     alphasQ as 100 >>= print
 
     let input = InputParam { mdtyp = TypeII
-                           , mH    = Mass 500
-                           , mA    = Mass 500
-                           , mHp   = Mass 200
+                           , mH    = Mass 650
+                           , mA    = Mass 650
+                           , mHp   = Mass 300
                            , angs  = (3, 0.1) }
 
     h2TauTau as input >>= print
@@ -23,3 +23,5 @@ main = do
     h2ZZ     as input >>= print
     h2GG     as input >>= print
     h2GaGa   as input >>= print
+    h2hh     as input >>= print
+    h2HpHm   as input >>= print

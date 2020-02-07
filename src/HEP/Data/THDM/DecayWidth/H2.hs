@@ -162,3 +162,13 @@ ftau x | x <= 1  = asin (sqrt x) ** 2 :+ 0
        | otherwise = let y = sqrt (1 - 1 / x)
                          z = log ((1 + y) / (1 - y)) :+ (-pi)
                      in - 0.25 * z * z
+
+h2SS :: MonadIO m => Double -> Double -> Double -> DecayWidth m
+h2SS beta g symF _ InputParam {..} =
+    return $ symF * g ** 2 / (32 * pi * getMass mH) * beta
+
+h2hh, h2HpHm :: MonadIO m => DecayWidth m
+h2hh   as inp@InputParam {..} =
+    h2SS (betaF mH mh)  (gHhh mH mA angs)       1 as inp
+h2HpHm as inp@InputParam {..} =
+    h2SS (betaF mH mHp) (gHHpHm mH mA mHp angs) 2 as inp

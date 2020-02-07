@@ -17,6 +17,9 @@ sinBetaAlpha tanb cosba = let b = atan tanb
 tan2Beta :: Double -> Double
 tan2Beta tanb = 2 * tanb / (1 - tanb * tanb)
 
+lambdaF :: Double -> Double -> Double -> Double
+lambdaF x y z = (x - y - z) ** 2 - 4 * y * z
+
 foreign import ccall "gsl_sf_dilog" gsl_sf_dilog :: Double -> Double
 
 dilog :: Double -> Double
