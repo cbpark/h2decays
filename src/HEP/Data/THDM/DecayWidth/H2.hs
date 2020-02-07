@@ -175,8 +175,7 @@ h2HpHm as inp@InputParam {..} =
 
 h2HpWm :: MonadIO m => DecayWidth m
 h2HpWm _ InputParam {..} = do
-    let (tanb, cosba) = angs
-        sinba = sinBetaAlpha tanb cosba
+    let sinba = uncurry sinBetaAlpha angs
         m = getMass mH
         y = mHp `massRatio` mH
         z = mW `massRatio` mH

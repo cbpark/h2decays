@@ -18,7 +18,8 @@ tan2Beta :: Double -> Double
 tan2Beta tanb = 2 * tanb / (1 - tanb * tanb)
 
 lambdaF :: Double -> Double -> Double -> Double
-lambdaF x y z = (x - y - z) ** 2 - 4 * y * z
+lambdaF x y z = let lam = (x - y - z) ** 2 - 4 * y * z
+                in if lam <= 0 then 0 else lam
 
 foreign import ccall "gsl_sf_dilog" gsl_sf_dilog :: Double -> Double
 
