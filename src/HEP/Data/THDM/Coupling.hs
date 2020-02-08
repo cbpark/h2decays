@@ -7,6 +7,7 @@ module HEP.Data.THDM.Coupling
     , gHhh
     , gHHpHm
     , THDMType (..)
+    , QuarkCoupling
     ) where
 
 import HEP.Data.Constants  (gW, mW, mh2, mtau)
@@ -23,7 +24,9 @@ gHff cfunc angs mf = let sinba = sinBetaAlpha angs
                          coeff = cfunc sinba
                      in gW * (mf `massRatio` mW) * coeff
 
-gHUU :: THDMType -> Mass -> Angles -> Double
+type QuarkCoupling = THDMType -> Mass -> Angles -> Double
+
+gHUU :: QuarkCoupling
 gHUU typ mU angs = gHff cfunc angs mU
   where
     tanb = tanBeta angs
@@ -31,7 +34,7 @@ gHUU typ mU angs = gHff cfunc angs mU
     cfunc sinba | typ == TypeI || typ == TypeII = cosba - sinba / tanb
                 | otherwise                     = 0
 
-gHDD :: THDMType -> Mass -> Angles -> Double
+gHDD :: QuarkCoupling
 gHDD typ mD angs = gHff cfunc angs mD
   where
     tanb = tanBeta angs

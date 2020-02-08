@@ -30,15 +30,15 @@ h2MuMu   = h2LL mmu
 
 h2BB, h2CC :: MonadIO m => DecayWidth m
 -- | H --> b bbar
-h2BB = h2QQ Bottom
+h2BB = h2QQ Bottom gHDD
 -- | H --> c cbar
-h2CC = h2QQ Charm
+h2CC = h2QQ Charm  gHUU
 
-h2QQ :: MonadIO m => MassiveQuark -> DecayWidth m
-h2QQ q as InputParam {..} = do
+h2QQ :: MonadIO m => MassiveQuark -> QuarkCoupling -> DecayWidth m
+h2QQ q coup as InputParam {..} = do
     let m = getMass mH
     mqMS <- mMSbar as m q
-    let gH = gHDD mdtyp mqMS angs
+    let gH = coup mdtyp mqMS angs
         beta = betaF mH (poleMass q)
 
     x <- (/pi) <$> alphasQ as m
