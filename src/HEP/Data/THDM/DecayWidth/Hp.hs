@@ -64,11 +64,11 @@ hpLL ml2 _ InputParam {..} = do
                 * (1 - ml2 / massSq mHp) ** 2
     return $ gamma * facTan
 
-hpTauTau, hpMuMu :: MonadIO m => DecayWidth m
+hpTauNu, hpMuNu :: MonadIO m => DecayWidth m
 -- | H^+ --> tau^+ tau^-
-hpTauTau = hpLL mtau2
+hpTauNu = hpLL mtau2
 -- | H^+ --> mu^+ mu^-
-hpMuMu   = hpLL mmu2
+hpMuNu  = hpLL mmu2
 
 -- | H^+ --> W^+ h
 hpWph :: MonadIO m => DecayWidth m
