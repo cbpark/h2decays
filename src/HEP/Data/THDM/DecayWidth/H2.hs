@@ -195,3 +195,29 @@ h2HpWm _ InputParam {..} = do
         z = mW `massRatio` mH
         lam = lambdaF 1 (y * y) (z * z)
     return $ gW2 * sinba ** 2 * m ** 3 / (64 * pi * mW2) * lam ** 1.5
+
+h2HpWmStar :: MonadIO m => DecayWidth m
+h2HpWmStar _ InputParam {..} = do
+    let m = getMass mH
+        m2 = m * m
+        mp = getMass mHp
+
+        c = 9 * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
+        k1 = mp * mp / m2
+        k2 = mW2 / m2
+        g = gFunc k1 k2
+        sinba = sinBetaAlpha angs
+    return $ if m < mp then 0 else c * g * sinba * sinba
+
+gFunc :: Double -> Double -> Double
+gFunc k1 k2 =
+    let -- k1: \kappa_{\phi}, k2: \kappa_{V}
+        lam12 = -1 + 2 * (k1 + k2) - (k1 - k2) ** 2
+    in if  k1 < k2 || lam12 <= 0
+       then 0
+       else let sqrtLam12 = if lam12 < 0 then 0 else sqrt lam12
+                x = (k2 * (1 - k2 + k1) - lam12) / ((1 - k1) * sqrtLam12)
+                term1 = 2 * (-1 + k2 - k1) * sqrtLam12 * (pi / 2 + atan x)
+                term2 = (lam12 - 2 * k1) * log k1
+                term3 = (1 - k1) / 3 * (5 * (1 + k1) - 4 * k2 + 2 * lam12 / k2)
+            in 0.25 * (term1 + term2 + term3)
