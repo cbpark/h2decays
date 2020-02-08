@@ -14,15 +14,19 @@ newtype Angles = Angles (Double, Double) deriving Show
 
 mkAngles :: Double -> Double -> Angles
 mkAngles tanb cosba = Angles (tanb, cosba)
+{-# INLINE mkAngles  #-}
 
 tanBeta :: Angles -> Double
 tanBeta (Angles (tanb, _)) = tanb
+{-# INLINE tanBeta #-}
 
 tan2Beta :: Angles -> Double
 tan2Beta (Angles (tanb, _)) = 2 * tanb / (1 - tanb * tanb)
+{-# INLINE tan2Beta #-}
 
 cosBetaAlpha :: Angles -> Double
 cosBetaAlpha (Angles (_, cosba)) = cosba
+{-# INLINE cosBetaAlpha #-}
 
 sinBetaAlpha :: Angles -> Double
 sinBetaAlpha (Angles (tanb, cosba)) = let b = atan tanb
@@ -38,6 +42,7 @@ piHalf th | th >=  pi12 = piHalf $! th - pi
 lambdaF :: Double -> Double -> Double -> Double
 lambdaF x y z = max 0 lam
   where lam = (x - y - z) ** 2 - 4 * y * z
+{-# INLINE lambdaF #-}
 
 foreign import ccall "gsl_sf_dilog" gsl_sf_dilog :: Double -> Double
 
