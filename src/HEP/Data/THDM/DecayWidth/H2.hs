@@ -221,3 +221,15 @@ gFunc k1 k2 =
                 term2 = (lam12 - 2 * k1) * log k1
                 term3 = (1 - k1) / 3 * (5 * (1 + k1) - 4 * k2 + 2 * lam12 / k2)
             in 0.25 * (term1 + term2 + term3)
+
+x1minmax :: Double -> Double -> Double -> Double -> (Double, Double)
+x1minmax kphi k1 k2 x2 =
+    let kappa = 1 - x2 - kphi + k1 + k2
+        term1 = kappa * (1 - x2 / 2)
+        term2 = sqrt $
+                (x2 * x2 / 4 - k2) * (kappa * kappa - 4 * k1 * (1 - x2 + k2))
+
+        fac = 1 / (1 - x2 + k2)
+        x1min = fac * (term1 - term2)
+        x1max = fac * (term1 + term2)
+    in (x1min, x1max)
