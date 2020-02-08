@@ -44,7 +44,8 @@ lambdaF x y z = max 0 lam
   where lam = (x - y - z) ** 2 - 4 * y * z
 {-# INLINE lambdaF #-}
 
-foreign import ccall "gsl_sf_dilog" gsl_sf_dilog :: Double -> Double
+foreign import ccall "gsl/gsl_sf_dilog.h gsl_sf_dilog" gsl_sf_dilog
+    :: Double -> Double
 
 dilog :: Double -> Double
 dilog = gsl_sf_dilog
