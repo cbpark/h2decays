@@ -24,7 +24,7 @@ main :: IO ()
 main = do
     input <- unwrapRecord "Calculate the branching ratio of heavy Higgs boson"
 
-    let mdtyp    = fromMaybe 2 (mtype input)
+    let mdtyp = fromMaybe 2 (mtype input)
         mdtypVal | mdtyp == 1 = TypeI
                  | mdtyp == 2 = TypeII
                  | otherwise  = UnknownType
