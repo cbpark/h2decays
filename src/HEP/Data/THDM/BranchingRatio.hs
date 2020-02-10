@@ -1,12 +1,16 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE RecordWildCards       #-}
 
 module HEP.Data.THDM.BranchingRatio where
 
-import HEP.Data.AlphaS          (AlphaS)
+import HEP.Data.AlphaS                   (AlphaS)
 import HEP.Data.THDM.DecayWidth
-import HEP.Data.THDM.Model      (InputParam (..))
+import HEP.Data.THDM.Model               (InputParam (..))
 
-import Control.Monad.IO.Class   (MonadIO)
+import Data.ByteString.Builder
+import Data.Double.Conversion.ByteString (toExponential, toFixed)
+
+import Control.Monad.IO.Class            (MonadIO)
 
 data BRH2 = BRH2 { _totalWidth :: Double
                  , _h2TT       :: Double
@@ -23,6 +27,26 @@ data BRH2 = BRH2 { _totalWidth :: Double
                  , _h2HW       :: Double
                  , _h2HWstar   :: Double
                  } deriving Show
+
+renderBRH2 :: Maybe BRH2 -> Builder
+renderBRH2 Nothing          = (byteString . toFixed 4) 0
+                              <> foldr1 (<>) (replicate 13 (space <> convDbl 0))
+                              <> endLine
+renderBRH2 (Just BRH2 {..}) = (byteString . toFixed 4) _totalWidth
+                              <> space <> convDbl _h2TT
+                              <> space <> convDbl _h2BB
+                              <> space <> convDbl _h2CC
+                              <> space <> convDbl _h2TauTau
+                              <> space <> convDbl _h2MuMu
+                              <> space <> convDbl _h2WW
+                              <> space <> convDbl _h2ZZ
+                              <> space <> convDbl _h2GaGa
+                              <> space <> convDbl _h2GG
+                              <> space <> convDbl _h2hh
+                              <> space <> convDbl _h2HpHm
+                              <> space <> convDbl _h2HW
+                              <> space <> convDbl _h2HWstar
+                              <> endLine
 
 brH2 :: MonadIO m => AlphaS -> InputParam -> m (Maybe BRH2)
 brH2 as inp = do
@@ -75,6 +99,18 @@ data BRHp = BRHp { _totalWidth :: Double
                  , _hpWh       :: Double
                  } deriving Show
 
+renderBRHp :: Maybe BRHp -> Builder
+renderBRHp Nothing          = (byteString . toFixed 4) 0
+                              <> foldr1 (<>) (replicate 5 (space <> convDbl 0))
+                              <> endLine
+renderBRHp (Just BRHp {..}) = (byteString . toFixed 4) _totalWidth
+                              <> space <> convDbl _hpTB
+                              <> space <> convDbl _hpCS
+                              <> space <> convDbl _hpTauNu
+                              <> space <> convDbl _hpMuNu
+                              <> space <> convDbl _hpWh
+                              <> endLine
+
 brHp :: MonadIO m => AlphaS -> InputParam -> m (Maybe BRHp)
 brHp as inp = do
     gamHpTB    <- hpTB as inp
@@ -93,3 +129,12 @@ brHp as inp = do
                               , _hpMuNu     = gamHpMuNu  / totalWidth
                               , _hpWh       = gamHpWh    / totalWidth
                               }
+
+convDbl :: Double -> Builder
+convDbl = byteString . toExponential 4
+
+space :: Builder
+space = stringUtf8 "\t"
+
+endLine :: Builder
+endLine = charUtf8 '\n'
