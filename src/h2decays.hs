@@ -39,18 +39,23 @@ main = do
         cosbaVal = cosba input
 
     as <- initAlphaS
-    let inp = InputParam { _mdtyp = mdtypVal
-                         , _mH    = Mass mHVal
-                         , _mA    = Mass mAVal
-                         , _mHp   = Mass mHpVal
-                         , _angs  = mkAngles tanbVal cosbaVal }
+    let inp = [ InputParam { _mdtyp = mdtypVal
+                           , _mH    = Mass mHVal
+                           , _mA    = Mass mAVal
+                           , _mHp   = Mass mHpVal
+                           , _angs  = mkAngles tanbVal cosbaVal }
+              , InputParam { _mdtyp = mdtypVal
+                           , _mH    = Mass (mHVal + 0.05)
+                           , _mA    = Mass (mAVal + 0.05)
+                           , _mHp   = Mass mHpVal
+                           , _angs  = mkAngles tanbVal cosbaVal }]
 
-    brs <- renderBRH2 inp <$> brH2 as inp
+    brs <- mapM (getBRH2 as) inp
 
     let outfile = fromMaybe "output_h2.dat" (output input)
     withBinaryFile outfile WriteMode $ \h -> do
         B.hPutStrLn h header
-        hPutBuilder h brs
+        mapM_ (hPutBuilder h) brs
 
     putStrLn $ "-- " ++ outfile ++ " generated."
 

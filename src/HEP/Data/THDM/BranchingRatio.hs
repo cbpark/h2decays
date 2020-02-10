@@ -1,7 +1,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE RecordWildCards       #-}
 
-module HEP.Data.THDM.BranchingRatio where
+module HEP.Data.THDM.BranchingRatio (getBRH2, getBRHp) where
 
 import HEP.Data.AlphaS                   (AlphaS)
 import HEP.Data.THDM.DecayWidth
@@ -28,28 +28,33 @@ data BRH2 = BRH2 { _totalWidth :: Double
                  , _h2HWstar   :: Double
                  }
 
+getBRH2 :: MonadIO m => AlphaS -> InputParam -> m Builder
+getBRH2 as inp = renderBRH2 inp <$> brH2 as inp
+
 renderBRH2 :: InputParam -> Maybe BRH2 -> Builder
 renderBRH2 inp brh2 = renderInputParam inp <> space <> renderBRH2' brh2
-
-renderBRH2' :: Maybe BRH2 -> Builder
-renderBRH2' Nothing          = (byteString . toFixed 4) 0
-                               <> foldr1 (<>) (replicate 13 (space <> convDbl 0))
-                               <> endLine
-renderBRH2' (Just BRH2 {..}) = (byteString . toFixed 4) _totalWidth
-                               <> space <> convDbl _h2TT
-                               <> space <> convDbl _h2BB
-                               <> space <> convDbl _h2CC
-                               <> space <> convDbl _h2TauTau
-                               <> space <> convDbl _h2MuMu
-                               <> space <> convDbl _h2WW
-                               <> space <> convDbl _h2ZZ
-                               <> space <> convDbl _h2GaGa
-                               <> space <> convDbl _h2GG
-                               <> space <> convDbl _h2hh
-                               <> space <> convDbl _h2HpHm
-                               <> space <> convDbl _h2HW
-                               <> space <> convDbl _h2HWstar
-                               <> endLine
+  where
+    renderBRH2' :: Maybe BRH2 -> Builder
+    renderBRH2' Nothing          =
+        (byteString . toFixed 4) 0
+        <> foldr1 (<>) (replicate 13 (space <> convDbl 0))
+        <> endLine
+    renderBRH2' (Just BRH2 {..}) =
+        (byteString . toFixed 4) _totalWidth
+        <> space <> convDbl _h2TT
+        <> space <> convDbl _h2BB
+        <> space <> convDbl _h2CC
+        <> space <> convDbl _h2TauTau
+        <> space <> convDbl _h2MuMu
+        <> space <> convDbl _h2WW
+        <> space <> convDbl _h2ZZ
+        <> space <> convDbl _h2GaGa
+        <> space <> convDbl _h2GG
+        <> space <> convDbl _h2hh
+        <> space <> convDbl _h2HpHm
+        <> space <> convDbl _h2HW
+        <> space <> convDbl _h2HWstar
+        <> endLine
 
 brH2 :: MonadIO m => AlphaS -> InputParam -> m (Maybe BRH2)
 brH2 as inp = do
@@ -102,20 +107,25 @@ data BRHp = BRHp { _totalWidth :: Double
                  , _hpWh       :: Double
                  }
 
+getBRHp :: MonadIO m => AlphaS -> InputParam -> m Builder
+getBRHp as inp = renderBRHp inp <$> brHp as inp
+
 renderBRHp :: InputParam -> Maybe BRHp -> Builder
 renderBRHp inp brhp = renderInputParam inp <> space <> renderBRHp' brhp
-
-renderBRHp' :: Maybe BRHp -> Builder
-renderBRHp' Nothing          = (byteString . toFixed 4) 0
-                               <> foldr1 (<>) (replicate 5 (space <> convDbl 0))
-                               <> endLine
-renderBRHp' (Just BRHp {..}) = (byteString . toFixed 4) _totalWidth
-                               <> space <> convDbl _hpTB
-                               <> space <> convDbl _hpCS
-                               <> space <> convDbl _hpTauNu
-                               <> space <> convDbl _hpMuNu
-                               <> space <> convDbl _hpWh
-                               <> endLine
+  where
+    renderBRHp' :: Maybe BRHp -> Builder
+    renderBRHp' Nothing          =
+        (byteString . toFixed 4) 0
+        <> foldr1 (<>) (replicate 5 (space <> convDbl 0))
+        <> endLine
+    renderBRHp' (Just BRHp {..}) =
+        (byteString . toFixed 4) _totalWidth
+        <> space <> convDbl _hpTB
+        <> space <> convDbl _hpCS
+        <> space <> convDbl _hpTauNu
+        <> space <> convDbl _hpMuNu
+        <> space <> convDbl _hpWh
+        <> endLine
 
 brHp :: MonadIO m => AlphaS -> InputParam -> m (Maybe BRHp)
 brHp as inp = do
@@ -137,7 +147,7 @@ brHp as inp = do
                               }
 
 convDbl :: Double -> Builder
-convDbl = byteString . toExponential 4
+convDbl = byteString . toExponential 5
 
 space :: Builder
 space = stringUtf8 "  "
