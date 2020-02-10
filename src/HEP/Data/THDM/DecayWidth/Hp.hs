@@ -71,8 +71,8 @@ hpTauNu = hpLL mtau2
 hpMuNu  = hpLL mmu2
 
 -- | H^+ --> W^+ h
-hpWph :: MonadIO m => DecayWidth m
-hpWph _ InputParam {..} = do
+hpWh :: MonadIO m => DecayWidth m
+hpWh _ InputParam {..} = do
     let cosba = cosBetaAlpha angs
         y = mW `massRatio` mHp
         z = mh `massRatio` mHp

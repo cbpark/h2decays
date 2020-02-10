@@ -1,3 +1,5 @@
+{-# LANGUAGE DuplicateRecordFields #-}
+
 module HEP.Data.THDM.BranchingRatio where
 
 import HEP.Data.AlphaS          (AlphaS)
@@ -47,7 +49,7 @@ brH2 as inp = do
                          , gamH2HW, gamH2HWstar
                          ]
 
-    return $ if totalWidth <= 0  -- what happend?
+    return $ if totalWidth <= 0  -- what happened?
              then Nothing
              else Just $ BRH2 { _totalWidth = totalWidth
                               , _h2TT       = gamH2TT     / totalWidth
@@ -63,4 +65,31 @@ brH2 as inp = do
                               , _h2HpHm     = gamH2HpHm   / totalWidth
                               , _h2HW       = gamH2HW     / totalWidth
                               , _h2HWstar   = gamH2HWstar / totalWidth
+                              }
+
+data BRHp = BRHp { _totalWidth :: Double
+                 , _hpTB       :: Double
+                 , _hpCS       :: Double
+                 , _hpTauNu    :: Double
+                 , _hpMuNu     :: Double
+                 , _hpWh       :: Double
+                 } deriving Show
+
+brHp :: MonadIO m => AlphaS -> InputParam -> m (Maybe BRHp)
+brHp as inp = do
+    gamHpTB    <- hpTB as inp
+    gamHpCS    <- hpCS as inp
+    gamHpTauNu <- hpTauNu as inp
+    gamHpMuNu  <- hpMuNu as inp
+    gamHpWh    <- hpWh as inp
+
+    let totalWidth = sum [ gamHpTB, gamHpCS, gamHpTauNu, gamHpMuNu, gamHpWh ]
+    return $ if totalWidth <= 0
+             then Nothing
+             else Just $ BRHp { _totalWidth = totalWidth
+                              , _hpTB       = gamHpTB    / totalWidth
+                              , _hpCS       = gamHpCS    / totalWidth
+                              , _hpTauNu    = gamHpTauNu / totalWidth
+                              , _hpMuNu     = gamHpMuNu  / totalWidth
+                              , _hpWh       = gamHpWh    / totalWidth
                               }
