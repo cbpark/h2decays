@@ -14,22 +14,22 @@ import Control.Monad.IO.Class (MonadIO)
 -- | H^+ --> t bbar
 hpTB :: MonadIO m => DecayWidth m
 hpTB as InputParam {..} = do
-    let m = getMass mHp
+    let m = getMass _mHp
     (mtMS, mbMS, _) <- mMSbarHeavy as m
 
-    let tanb = tanBeta angs
+    let tanb = tanBeta _angs
         tanb2 = tanb * tanb
         [mtPole, mtMSVal, mbPole, mbMSVal] = getMass <$> [mt, mtMS, mb, mbMS]
         mtRatio2 = (mtPole / m) ** 2
         mbRatio2 = (mbPole / m) ** 2
 
         facCoup
-            | mdtyp == TypeI  =
+            | _mdtyp == TypeI  =
               (1 / tanb2 *) $
               (1  - mtRatio2 - mbRatio2)
               * (massSq mtMS + massSq mbMS)
               + 4 * mtPole * mtMSVal * mbPole * mbMSVal / (m * m)
-            | mdtyp == TypeII =
+            | _mdtyp == TypeII =
               (1  - mtRatio2 - mbRatio2)
               * (massSq mtMS / tanb2 + massSq mbMS * tanb2)
               - 4 * mtPole * mtMSVal * mbPole * mbMSVal / (m * m)
@@ -43,12 +43,12 @@ hpTB as InputParam {..} = do
 -- | H^+ --> c sbar
 hpCS :: MonadIO m => DecayWidth m
 hpCS as InputParam {..} = do
-    let m = getMass mH
+    let m = getMass _mH
     (_, _, mcMS) <- mMSbarHeavy as m
 
-    let tanb = tanBeta angs
-        facCoup | mdtyp == TypeI || mdtyp == TypeII = massSq mcMS / (tanb ** 2)
-                | otherwise                         = 0
+    let tanb = tanBeta _angs
+        facCoup | _mdtyp == TypeI || _mdtyp == TypeII = massSq mcMS / (tanb ** 2)
+                | otherwise                           = 0
 
     return $ if m < getMass mcMS
              then 0
@@ -56,12 +56,12 @@ hpCS as InputParam {..} = do
 
 hpLL :: MonadIO m => Double -> DecayWidth m
 hpLL ml2 _ InputParam {..} = do
-    let tanb = tanBeta angs
-        facTan | mdtyp == TypeI  = 1 / (tanb * tanb)
-               | mdtyp == TypeII = tanb * tanb
+    let tanb = tanBeta _angs
+        facTan | _mdtyp == TypeI  = 1 / (tanb * tanb)
+               | _mdtyp == TypeII = tanb * tanb
                | otherwise       = 0
-        gamma = gW2 * getMass mHp * ml2 / (32 * pi2 * mW2)
-                * (1 - ml2 / massSq mHp) ** 2
+        gamma = gW2 * getMass _mHp * ml2 / (32 * pi2 * mW2)
+                * (1 - ml2 / massSq _mHp) ** 2
     return $ gamma * facTan
 
 hpTauNu, hpMuNu :: MonadIO m => DecayWidth m
@@ -73,8 +73,8 @@ hpMuNu  = hpLL mmu2
 -- | H^+ --> W^+ h
 hpWh :: MonadIO m => DecayWidth m
 hpWh _ InputParam {..} = do
-    let cosba = cosBetaAlpha angs
-        y = mW `massRatio` mHp
-        z = mh `massRatio` mHp
-    return $ gW2 * cosba * cosba * getMass mHp / (64 * pi * mW2)
+    let cosba = cosBetaAlpha _angs
+        y = mW `massRatio` _mHp
+        z = mh `massRatio` _mHp
+    return $ gW2 * cosba * cosba * getMass _mHp / (64 * pi * mW2)
              * lambdaF 1 (y * y) (z * z) ** 1.5

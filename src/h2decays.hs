@@ -13,11 +13,15 @@ main = do
     as <- initAlphaS
     -- alphasQ as 100 >>= print
 
-    let input = InputParam { mdtyp = TypeII
-                           , mH    = Mass 650
-                           , mA    = Mass 650
-                           , mHp   = Mass 300
-                           , angs  = mkAngles 3 0.1 }
+    let input = InputParam { _mdtyp = TypeII
+                           , _mH    = Mass 650
+                           , _mA    = Mass 650
+                           , _mHp   = Mass 300
+                           , _angs  = mkAngles 3 0.1 }
 
     renderBRH2 input <$> brH2 as input >>= hPutBuilder stdout
     renderBRHp input <$> brHp as input >>= hPutBuilder stdout
+
+-- data InputArgs w = InputArgs
+--     { _mH :: w ::: Double <?> "heavy Higgs mass"
+--     }

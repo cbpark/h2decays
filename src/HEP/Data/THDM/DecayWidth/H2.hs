@@ -15,12 +15,12 @@ import Data.Complex           (Complex (..), magnitude)
 
 h2LL :: MonadIO m => Mass -> DecayWidth m
 h2LL ml _ InputParam {..} = do
-    let gH | mdtyp == TypeI  = gHTauTauI  angs
-           | mdtyp == TypeII = gHTauTauII angs
-           | otherwise     = 0
+    let gH | _mdtyp == TypeI  = gHTauTauI  _angs
+           | _mdtyp == TypeII = gHTauTauII _angs
+           | otherwise        = 0
 
-        beta = betaF mH ml
-    return $ getMass mH * gH * gH * beta ** 3 / (32 * pi)
+        beta = betaF _mH ml
+    return $ getMass _mH * gH * gH * beta ** 3 / (32 * pi)
 
 h2TauTau, h2MuMu :: MonadIO m => DecayWidth m
 -- | H --> tau^+ tau^-
@@ -36,10 +36,10 @@ h2CC = h2QQ Charm  gHUU
 
 h2QQ :: MonadIO m => MassiveQuark -> QuarkCoupling -> DecayWidth m
 h2QQ q coup as InputParam {..} = do
-    let m = getMass mH
+    let m = getMass _mH
     mqMS <- mMSbar as m q
-    let gH = coup mdtyp mqMS angs
-        beta = betaF mH (poleMass q)
+    let gH = coup _mdtyp mqMS _angs
+        beta = betaF _mH (poleMass q)
 
     x <- (/pi) <$> alphasQ as m
     let nf = nLightQ q
@@ -58,11 +58,11 @@ h2QQ q coup as InputParam {..} = do
 -- | H --> t tbar
 h2TT :: MonadIO m => DecayWidth m
 h2TT as InputParam {..} = do
-    let m = getMass mH
+    let m = getMass _mH
     mtMS <- mMSbar as m Top
-    let gH = gHUU mdtyp mtMS angs
-        betaPole = betaF mH (poleMass Top)
-        betaMS   = betaF mH mtMS
+    let gH = gHUU _mdtyp mtMS _angs
+        betaPole = betaF _mH (poleMass Top)
+        betaMS   = betaF _mH mtMS
         betaMS2  = betaMS * betaMS
         kappa    = (1 - betaMS) / (1 + betaMS)
         logKappa = log kappa
@@ -88,10 +88,10 @@ data EWBosons = Wboson | Zboson deriving Eq
 
 h2VV :: MonadIO m => EWBosons -> DecayWidth m
 h2VV v _ InputParam {..} = do
-    let m = getMass mH
-        cosba = cosBetaAlpha angs
-        (deltaV, x) | v == Wboson = (2, mW `massRatio` mH)
-                    | otherwise   = (1, mZ `massRatio` mH)
+    let m = getMass _mH
+        cosba = cosBetaAlpha _angs
+        (deltaV, x) | v == Wboson = (2, mW `massRatio` _mH)
+                    | otherwise   = (1, mZ `massRatio` _mH)
         x2 = x * x
     return $ deltaV * m ** 3 * cosba ** 2 / (64 * pi * vEW2)
              * sqrt (1 - 4 * x2) * (1 - 4 * x2 + 12 * x2 * x2)
@@ -108,13 +108,13 @@ argF m2 (Mass mq) coup = (coup / mq *) <$> a12 (m2 / (4 * mq * mq))
 -- | H --> g g
 h2GG :: MonadIO m => DecayWidth m
 h2GG as InputParam {..} = do
-    let m = getMass mH
+    let m = getMass _mH
     (mtMS, mbMS, mcMS) <- mMSbarHeavy as m
     alphas <- alphasQ as m
 
-    let gHtt = gHUU mdtyp mtMS angs
-        gHbb = gHDD mdtyp mbMS angs
-        gHcc = gHUU mdtyp mcMS angs
+    let gHtt = gHUU _mdtyp mtMS _angs
+        gHbb = gHDD _mdtyp mbMS _angs
+        gHcc = gHUU _mdtyp mcMS _angs
 
         m2 = m * m
         args = (3 * vEW / (4 * sqrt2) *) <$> sum
@@ -125,16 +125,16 @@ h2GG as InputParam {..} = do
 -- | H --> gamma gamma
 h2GaGa :: MonadIO m => DecayWidth m
 h2GaGa as InputParam {..} = do
-    let m = getMass mH
+    let m = getMass _mH
     (mtMS, mbMS, mcMS) <- mMSbarHeavy as m
 
-    let gHtt = gHUU mdtyp mtMS angs
+    let gHtt = gHUU _mdtyp mtMS _angs
         qt2 = 4.0 / 9
-        gHbb = gHDD mdtyp mbMS angs
+        gHbb = gHDD _mdtyp mbMS _angs
         qb2 = 1.0 / 9
-        gHcc = gHUU mdtyp mcMS angs
+        gHcc = gHUU _mdtyp mcMS _angs
         qc2 = qt2
-        gHTaTa = gHDD mdtyp mtau angs
+        gHTaTa = gHDD _mdtyp mtau _angs
         qta2 = 1
 
         m2 = m * m
@@ -144,12 +144,12 @@ h2GaGa as InputParam {..} = do
                 [mtMS, mbMS, mcMS, mtau]
                 [3 * qt2 * gHtt, 3 * qb2 * gHbb, 3 * qc2 * gHcc, qta2 * gHTaTa])
 
-        cosba = cosBetaAlpha angs
+        cosba = cosBetaAlpha _angs
         -- W contributions
         arg2 = (cosba *) <$> a1 (m2 / (4 * massSq mW))
 
-        mHp2 = massSq mHp
-        gHp = gHHpHm mH mA mHp angs
+        mHp2 = massSq _mHp
+        gHp = gHHpHm _mH _mA _mHp _angs
         -- H+ contributions
         arg3 = (vEW / (sqrt2 * mHp2) * gHp *) <$> a0 (m2 / (4 * mHp2))
 
@@ -169,44 +169,44 @@ a0 :: Double -> Complex Double
 a0 x = (1 / (x * x) *) <$> (ftau x - (x :+ 0))
 
 ftau :: Double -> Complex Double
-ftau x | x <= 1  = asin (sqrt x) ** 2 :+ 0
+ftau x | x <= 1    = asin (sqrt x) ** 2 :+ 0
        | otherwise = let y = sqrt (1 - 1 / x)
                          z = log ((1 + y) / (1 - y)) :+ (-pi)
                      in - 0.25 * z * z
 
 h2SS :: MonadIO m => Double -> Double -> Double -> DecayWidth m
 h2SS beta g symF _ InputParam {..} =
-    return $ symF * g ** 2 / (32 * pi * getMass mH) * beta
+    return $ symF * g ** 2 / (32 * pi * getMass _mH) * beta
 
 h2hh, h2HpHm :: MonadIO m => DecayWidth m
 -- | H --> h h
 h2hh   as inp@InputParam {..} =
-    h2SS (betaF mH mh)  (gHhh mH mA angs)       1 as inp
+    h2SS (betaF _mH mh)   (gHhh _mH _mA _angs)        1 as inp
 -- | H --> H^+ H^-
 h2HpHm as inp@InputParam {..} =
-    h2SS (betaF mH mHp) (gHHpHm mH mA mHp angs) 2 as inp
+    h2SS (betaF _mH _mHp) (gHHpHm _mH _mA _mHp _angs) 2 as inp
 
 -- | H --> H^+ W^-
 h2HpWm :: MonadIO m => DecayWidth m
 h2HpWm _ InputParam {..} = do
-    let sinba = sinBetaAlpha angs
-        m = getMass mH
-        y = mHp `massRatio` mH
-        z = mW `massRatio` mH
+    let sinba = sinBetaAlpha _angs
+        m = getMass _mH
+        y = _mHp `massRatio` _mH
+        z = mW `massRatio` _mH
         lam = lambdaF 1 (y * y) (z * z)
     return $ gW2 * sinba ** 2 * m ** 3 / (64 * pi * mW2) * lam ** 1.5
 
 h2HpWmStar :: MonadIO m => DecayWidth m
 h2HpWmStar _ InputParam {..} = do
-    let m = getMass mH
+    let m = getMass _mH
         m2 = m * m
-        mp = getMass mHp
+        mp = getMass _mHp
 
         c = 9 * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
         k1 = mp * mp / m2
         k2 = mW2 / m2
         g = gFunc k1 k2
-        sinba = sinBetaAlpha angs
+        sinba = sinBetaAlpha _angs
     return $ if m < mp then 0 else c * g * sinba * sinba
 
 gFunc :: Double -> Double -> Double
