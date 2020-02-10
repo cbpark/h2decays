@@ -1,3 +1,10 @@
+{-# LANGUAGE DataKinds          #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE FlexibleInstances  #-}
+{-# LANGUAGE OverloadedStrings  #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeOperators      #-}
+
 module Main where
 
 import HEP.Data.AlphaS         (initAlphaS)
@@ -5,23 +12,48 @@ import HEP.Data.Kinematics
 import HEP.Data.THDM
 import HEP.Data.Util           (mkAngles)
 
+import Options.Generic
+
+import Control.Monad           (when)
 import Data.ByteString.Builder
+import Data.Maybe              (fromMaybe)
+import System.Exit             (die)
 import System.IO               (stdout)
 
 main :: IO ()
 main = do
+    input <- unwrapRecord "Calculate the branching ratio of heavy Higgs boson"
+
+    let mdtyp    = fromMaybe 2 (mtype input)
+        mdtypVal | mdtyp == 1 = TypeI
+                 | mdtyp == 2 = TypeII
+                 | otherwise  = UnknownType
+    when (mdtypVal == UnknownType) $ die "The type must be either 1 or 2."
+
+    let mHVal    = mH input
+        mAVal    = fromMaybe mHVal (mA input)
+        mHpVal   = mHp input
+        tanbVal  = tanb input
+        cosbaVal = cosba input
+
     as <- initAlphaS
-    -- alphasQ as 100 >>= print
+    let inp = InputParam { _mdtyp = mdtypVal
+                         , _mH    = Mass mHVal
+                         , _mA    = Mass mAVal
+                         , _mHp   = Mass mHpVal
+                         , _angs  = mkAngles tanbVal cosbaVal }
 
-    let input = InputParam { _mdtyp = TypeII
-                           , _mH    = Mass 650
-                           , _mA    = Mass 650
-                           , _mHp   = Mass 300
-                           , _angs  = mkAngles 3 0.1 }
+    renderBRH2 inp <$> brH2 as inp >>= hPutBuilder stdout
+    renderBRHp inp <$> brHp as inp >>= hPutBuilder stdout
 
-    renderBRH2 input <$> brH2 as input >>= hPutBuilder stdout
-    renderBRHp input <$> brHp as input >>= hPutBuilder stdout
+data InputArgs w = InputArgs
+    { mtype :: w ::: Maybe Int    <?> "model type (either 1 or 2)"
+    , mH    :: w ::: Double       <?> "heavy Higgs mass"
+    , mA    :: w ::: Maybe Double <?> "heavy mass scale (m_A if MSSM)"
+    , mHp   :: w ::: Double       <?> "charged Higgs mass"
+    , tanb  :: w ::: Double       <?> "tan(beta)"
+    , cosba :: w ::: Double       <?> "cos(beta-alpha)"
+    } deriving Generic
 
--- data InputArgs w = InputArgs
---     { _mH :: w ::: Double <?> "heavy Higgs mass"
---     }
+instance ParseRecord (InputArgs Wrapped)
+deriving instance Show (InputArgs Unwrapped)

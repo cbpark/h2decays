@@ -31,10 +31,10 @@ renderInputParam InputParam {..} =
         tanb = tanBeta _angs
         cosba = cosBetaAlpha _angs
     in int8Dec typ
-       <> space <> (byteString . toFixed 1) (getMass _mH)
-       <> space <> (byteString . toFixed 1) (getMass _mA)
-       <> space <> (byteString . toFixed 1) (getMass _mHp)
-       <> space <> (byteString . toFixed 2) tanb
+       <> space <> (byteString . toFixed 2) (getMass _mH)
+       <> space <> (byteString . toFixed 2) (getMass _mA)
+       <> space <> (byteString . toFixed 2) (getMass _mHp)
+       <> space <> (byteString . toFixed 1) tanb
        <> space <> (byteString . toFixed 2) cosba
   where
     space = stringUtf8 "  "
