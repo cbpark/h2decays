@@ -100,7 +100,7 @@ data BRHp = BRHp { _totalWidth :: Double
                  , _hpTauNu    :: Double
                  , _hpMuNu     :: Double
                  , _hpWh       :: Double
-                 } deriving Show
+                 }
 
 renderBRHp :: InputParam -> Maybe BRHp -> Builder
 renderBRHp inp brhp = renderInputParam inp <> space <> renderBRHp' brhp
