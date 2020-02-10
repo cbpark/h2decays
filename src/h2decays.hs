@@ -21,10 +21,5 @@ main = do
 
     -- brHp as input >>= print
 
-    br1 <- renderBRH2 <$> (brH2 as input)
-    hPutBuilder stdout br1
-    hPutBuilder stdout (renderBRH2 Nothing)
-
-    br2 <- renderBRHp <$> (brHp as input)
-    hPutBuilder stdout br2
-    hPutBuilder stdout (renderBRHp Nothing)
+    renderBRH2 input <$> (brH2 as input) >>= hPutBuilder stdout
+    renderBRHp input <$> (brHp as input) >>= hPutBuilder stdout
