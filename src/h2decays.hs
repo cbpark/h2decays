@@ -53,7 +53,7 @@ main = do
                                           , _angs   = mkAngles tanbVal cosbaVal
                                           }) mHVals mAVals
     putStrLn "-- Calculating the branching ratios of the heavy Higgs boson..."
-    brs <- mapM (getBRH2 as) inps
+    brs <- V.mapM (getBRH2 as) inps
     putStrLn "-- ... done."
 
     let outfile = fromMaybe "output_h2.dat" (output input)
