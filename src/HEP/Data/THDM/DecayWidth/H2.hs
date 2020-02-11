@@ -1,3 +1,4 @@
+{-# LANGUAGE MultiWayIf      #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module HEP.Data.THDM.DecayWidth.H2 where
@@ -9,6 +10,8 @@ import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
 import HEP.Data.THDM.Model    (DecayWidth, InputParam (..))
 import HEP.Data.Util          (cosBetaAlpha, dilog, lambdaF, sinBetaAlpha)
+
+-- import Numeric.GSL.Integration
 
 import Control.Monad.IO.Class (MonadIO)
 import Data.Complex           (Complex (..), magnitude)
@@ -188,16 +191,37 @@ h2HpHm as inp@InputParam {..} =
 
 -- | H --> H^+ W^-
 h2HpWm :: MonadIO m => DecayWidth m
-h2HpWm _ InputParam {..} = do
+h2HpWm _ inp@InputParam {..} = do
+    let m  = getMass _mH
+        mp = getMass _mHp
+        mw = getMass mW;
+
+        mphip = mp + mw + 4.0
+        mphim = mp + mw - 1.0
+
+        width =
+            if | m > mphip              -> h2HW2body inp
+               | m > mp    && m < mphim -> h2HW3body inp
+               | m > mphim && m < mphip ->
+                     h2HW2body (inp { _mH = Mass mphip })
+                     - h2HW3body (inp { _mH = Mass mphim })
+                     / (mphip - mphim) * (m - mphim)
+                     + h2HW3body (inp { _mH = Mass mphim })
+               | otherwise -> 0
+
+    return width
+
+h2HW2body :: InputParam -> Double
+h2HW2body InputParam {..} =
     let sinba = sinBetaAlpha _angs
         m = getMass _mH
         y = _mHp `massRatio` _mH
         z = mW `massRatio` _mH
         lam = lambdaF 1 (y * y) (z * z)
-    return $ gW2 * sinba ** 2 * m ** 3 / (64 * pi * mW2) * lam ** 1.5
+    in gW2 * sinba ** 2 * m ** 3 / (64 * pi * mW2) * lam ** 1.5
 
-h2HpWmStar :: MonadIO m => DecayWidth m
-h2HpWmStar _ InputParam {..} = do
+h2HW3body :: InputParam -> Double
+h2HW3body InputParam {..} =
     let m = getMass _mH
         m2 = m * m
         mp = getMass _mHp
@@ -207,7 +231,53 @@ h2HpWmStar _ InputParam {..} = do
         k2 = mW2 / m2
         g = gFunc k1 k2
         sinba = sinBetaAlpha _angs
-    return $ if m < mp then 0 else c * g * sinba * sinba
+    in if m < mp then 0 else c * g * sinba ** 2
+
+-- h2HpWm :: MonadIO m => DecayWidth m
+-- h2HpWm _ InputParam {..} = do
+--     let sinba = sinBetaAlpha _angs
+--         m = getMass _mH
+--         y = _mHp `massRatio` _mH
+--         z = mW `massRatio` _mH
+--         lam = lambdaF 1 (y * y) (z * z)
+--     return $ gW2 * sinba ** 2 * m ** 3 / (64 * pi * mW2) * lam ** 1.5
+
+-- h2HpWmStar :: MonadIO m => DecayWidth m
+-- h2HpWmStar _ InputParam {..} = do
+--     let m = getMass _mH
+--         m2 = m * m
+--         mp = getMass _mHp
+
+--         c = 9 * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
+--         k1 = mp * mp / m2
+--         k2 = mW2 / m2
+--         g = gFunc k1 k2
+--         sinba = sinBetaAlpha _angs
+--     return $ if m < mp then 0 else c * g * sinba * sinba
+
+
+-- h2HpWmStar :: MonadIO m => DecayWidth m
+-- h2HpWmStar _ InputParam {..} = do
+--     let m = getMass _mH
+--         m2 = m * m
+--         mp = getMass _mHp
+--         mw = getMass mW
+
+--     return $
+--         if m < mp || m > mp + mw
+--         then 0
+--         else let c = 9 * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
+--                  k1 = mp * mp / m2
+--                  k2 = mW2 / m2
+
+--                  f x2 = x2 * (x2 - 1 + k1) / k2
+--                         + (1 - x2)
+--                         * log (k2 * (1 - x2) / (x2 * (x2 - 1 + k1 - k2) + k2))
+
+--                  (g, _) = integrateQAGS 1e-9 1000 f 0 (1 - k1)
+
+--                  sinba = sinBetaAlpha _angs
+--              in c * g * sinba * sinba
 
 gFunc :: Double -> Double -> Double
 gFunc k1 k2 =
