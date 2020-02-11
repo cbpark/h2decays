@@ -3,18 +3,18 @@
 
 module HEP.Data.THDM.DecayWidth.H2 where
 
-import HEP.Data.AlphaS        (alphasQ)
+import HEP.Data.AlphaS         (alphasQ)
 import HEP.Data.Constants
-import HEP.Data.Kinematics    (Mass (..), betaF, massRatio, massSq)
+import HEP.Data.Kinematics     (Mass (..), betaF, massRatio, massSq)
 import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
-import HEP.Data.THDM.Model    (DecayWidth, InputParam (..))
-import HEP.Data.Util          (cosBetaAlpha, dilog, lambdaF, sinBetaAlpha)
+import HEP.Data.THDM.Model     (DecayWidth, InputParam (..))
+import HEP.Data.Util
 
 -- import Numeric.GSL.Integration
 
-import Control.Monad.IO.Class (MonadIO)
-import Data.Complex           (Complex (..), magnitude)
+import Control.Monad.IO.Class  (MonadIO)
+import Data.Complex            (Complex (..), magnitude)
 
 h2LL :: MonadIO m => Mass -> DecayWidth m
 h2LL ml _ InputParam {..} = do
@@ -189,24 +189,78 @@ h2hh   as inp@InputParam {..} =
 h2HpHm as inp@InputParam {..} =
     h2SS (betaF _mH _mHp) (gHHpHm _mH _mA _mHp _angs) 2 as inp
 
+-- h2HpTB :: MonadIO m => DecayWidth m
+-- h2HpTB as InputParam {..} = do
+--     let [m, mp, mt', mb'] = fmap getMass [_mH, _mHp, mt, mb]
+--     if m < mp + mt' + mb' || m > 2 * mp
+--         then return 0
+--         else do
+--             (Mass mtMS, Mass mbMS, _) <- mMSbarHeavy as m
+
+--             let gH = gHHpHm _mH _mA _mHp _angs
+
+--                 tanb = tanBeta _angs
+--                 gf  | _mdtyp == TypeI  = mbMS - mtMS
+--                     | _mdtyp == TypeII = mbMS * tanb + mtMS / tanb
+--                     | otherwise        = 0
+--                 gf2 = gf * gf
+--                 gf' | _mdtyp == TypeI  = mbMS + mtMS
+--                     | _mdtyp == TypeII = mbMS * tanb - mtMS / tanb
+--                     | otherwise        = 0
+--                 gf2' = gf' * gf'
+
+--                 kp = (_mHp `massRatio` _mH) ** 2
+--                 k1 = (  mt `massRatio` _mH) ** 2
+--                 k2 = 0 -- (  mb `massRatio` _mH) ** 2
+--                 (x1min, x1max) = x1minmax kp k1 k2
+
+--                 f x2 = (gf2 + gf2')
+--                        * ((x1max x2 - x1min x2) * (kp - k1 - k2)
+--                           / ((1 - x2 - x1min x2) * (1 - x2 - x1max x2) + 1.0e-8)
+--                           -- + log ((1 - x2 - x1max x2) / (1 - x2 - x1min x2))
+--                          )
+--                        -- - 2 * (gf2 - gf2')
+--                        -- * sqrt (k1 * k2) * (x1max x2 - x1min x2)
+--                        -- / (1 - x2 - x1min x2) / (1 - x2 - x1max x2)
+
+--                 (g, _) = integrateQAGS 1.0e-9 10000
+--                          f (2 * sqrt k2) (1 - kp - k1 + k2 - sqrt (kp * k1))
+
+--             return $ 3 * gH * gH * vUD * vUD / (128 * pi3 * m) * g
+
+x1minmax :: Double -> Double -> Double -> (Double -> Double, Double -> Double)
+x1minmax kphi k1 k2 =
+    let kappa x2 = 1 - x2 - kphi + k1 + k2
+        term1 x2 = kappa x2 * (1 - x2 / 2)
+        term2 x2 = sqrt . abs $
+                   (x2 * x2 / 4 - k2) * (kappa x2 ** 2 - 4 * k1 * (1 - x2 + k2))
+
+        fac x2 = 1 / (1 - x2 + k2)
+        x1min x2 = fac x2 * (term1 x2 - term2 x2)
+        x1max x2 = fac x2 * (term1 x2 + term2 x2)
+    in (x1min, x1max)
+
 -- | H --> H^+ W^-
 h2HpWm :: MonadIO m => DecayWidth m
 h2HpWm _ inp@InputParam {..} = do
     let m  = getMass _mH
         mp = getMass _mHp
-        mw = getMass mW;
+        mw = getMass mW
 
         mphip = mp + mw + 4.0
         mphim = mp + mw - 1.0
 
+        -- the trick taken from H-COUP.
+        -- see SM_Hdecay.F90 of https://arxiv.org/abs/1910.12769
         width =
             if | m > mphip              -> h2HW2body inp
                | m > mp    && m < mphim -> h2HW3body inp
                | m > mphim && m < mphip ->
-                     h2HW2body (inp { _mH = Mass mphip })
-                     - h2HW3body (inp { _mH = Mass mphim })
-                     / (mphip - mphim) * (m - mphim)
-                     + h2HW3body (inp { _mH = Mass mphim })
+                     let inpP = inp { _mH = Mass mphip }
+                         inpM = inp { _mH = Mass mphim }
+                     in h2HW2body inpP
+                        - h2HW3body inpM / (mphip - mphim) * (m - mphim)
+                        + h2HW3body inpM
                | otherwise -> 0
 
     return width
@@ -233,52 +287,6 @@ h2HW3body InputParam {..} =
         sinba = sinBetaAlpha _angs
     in if m < mp then 0 else c * g * sinba ** 2
 
--- h2HpWm :: MonadIO m => DecayWidth m
--- h2HpWm _ InputParam {..} = do
---     let sinba = sinBetaAlpha _angs
---         m = getMass _mH
---         y = _mHp `massRatio` _mH
---         z = mW `massRatio` _mH
---         lam = lambdaF 1 (y * y) (z * z)
---     return $ gW2 * sinba ** 2 * m ** 3 / (64 * pi * mW2) * lam ** 1.5
-
--- h2HpWmStar :: MonadIO m => DecayWidth m
--- h2HpWmStar _ InputParam {..} = do
---     let m = getMass _mH
---         m2 = m * m
---         mp = getMass _mHp
-
---         c = 9 * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
---         k1 = mp * mp / m2
---         k2 = mW2 / m2
---         g = gFunc k1 k2
---         sinba = sinBetaAlpha _angs
---     return $ if m < mp then 0 else c * g * sinba * sinba
-
-
--- h2HpWmStar :: MonadIO m => DecayWidth m
--- h2HpWmStar _ InputParam {..} = do
---     let m = getMass _mH
---         m2 = m * m
---         mp = getMass _mHp
---         mw = getMass mW
-
---     return $
---         if m < mp || m > mp + mw
---         then 0
---         else let c = 9 * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
---                  k1 = mp * mp / m2
---                  k2 = mW2 / m2
-
---                  f x2 = x2 * (x2 - 1 + k1) / k2
---                         + (1 - x2)
---                         * log (k2 * (1 - x2) / (x2 * (x2 - 1 + k1 - k2) + k2))
-
---                  (g, _) = integrateQAGS 1e-9 1000 f 0 (1 - k1)
-
---                  sinba = sinBetaAlpha _angs
---              in c * g * sinba * sinba
-
 gFunc :: Double -> Double -> Double
 gFunc k1 k2 =
     let -- k1: \kappa_{\phi}, k2: \kappa_{V}
@@ -291,15 +299,3 @@ gFunc k1 k2 =
                 term2 = (lam12 - 2 * k1) * log k1
                 term3 = (1 - k1) / 3 * (5 * (1 + k1) - 4 * k2 + 2 * lam12 / k2)
             in 0.25 * (term1 + term2 + term3)
-
-x1minmax :: Double -> Double -> Double -> Double -> (Double, Double)
-x1minmax kphi k1 k2 x2 =
-    let kappa = 1 - x2 - kphi + k1 + k2
-        term1 = kappa * (1 - x2 / 2)
-        term2 = sqrt $
-                (x2 * x2 / 4 - k2) * (kappa * kappa - 4 * k1 * (1 - x2 + k2))
-
-        fac = 1 / (1 - x2 + k2)
-        x1min = fac * (term1 - term2)
-        x1max = fac * (term1 + term2)
-    in (x1min, x1max)

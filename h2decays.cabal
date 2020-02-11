@@ -34,7 +34,7 @@ executable h2decays
   build-depends:       base ^>=4.12.0.0
                      , bytestring
                      , double-conversion
-                     -- , hmatrix-gsl
+                     , hmatrix-gsl
                      , optparse-generic
                      , vector
   hs-source-dirs:      src
