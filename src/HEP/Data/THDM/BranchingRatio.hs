@@ -150,7 +150,7 @@ convDbl :: Double -> Builder
 convDbl = byteString . toExponential 5
 
 space :: Builder
-space = stringUtf8 "  "
+space = stringUtf8 " "
 
 endLine :: Builder
 endLine = charUtf8 '\n'

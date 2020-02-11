@@ -15,6 +15,7 @@ import           HEP.Data.Util           (mkAngles)
 import           Data.ByteString.Builder (hPutBuilder)
 import           Data.ByteString.Char8   (ByteString)
 import qualified Data.ByteString.Char8   as B
+import qualified Data.Vector             as V
 import           Options.Generic
 
 import           Control.Monad           (when)
@@ -32,25 +33,28 @@ main = do
                  | otherwise  = UnknownType
     when (mdtypVal == UnknownType) $ die "The type must be either 1 or 2."
 
-    let mHVal    = mH input
-        mAVal    = fromMaybe mHVal (mA input)
+    let (mHVal1, mHVal2) = (,) <$> minimum <*> maximum $ mH input
+        npoints = floor $ (mHVal2 - mHVal1) / stepsize + 1
+        mHVals = V.generate npoints (\i -> mHVal1 + fromIntegral i * stepsize)
+        mAVals = fromMaybe mHVals (V.replicateM npoints (mA input))
         mHpVal   = mHp input
         tanbVal  = tanb input
         cosbaVal = cosba input
 
-    as <- initAlphaS
-    let inp = [ InputParam { _mdtyp = mdtypVal
-                           , _mH    = Mass mHVal
-                           , _mA    = Mass mAVal
-                           , _mHp   = Mass mHpVal
-                           , _angs  = mkAngles tanbVal cosbaVal }
-              , InputParam { _mdtyp = mdtypVal
-                           , _mH    = Mass (mHVal + 0.05)
-                           , _mA    = Mass (mAVal + 0.05)
-                           , _mHp   = Mass mHpVal
-                           , _angs  = mkAngles tanbVal cosbaVal }]
+    putStrLn $ "-- m_{H+} = " ++ show mHpVal ++ ", tan(beta) = " ++ show tanbVal
+        ++ ", cos(beta - alpha) = " ++ show cosbaVal
 
-    brs <- mapM (getBRH2 as) inp
+    as <- initAlphaS
+    let inps = V.zipWith (\mHVal mAVal -> InputParam
+                                          { _mdtyp  = mdtypVal
+                                          , _mH     = Mass mHVal
+                                          , _mA     = Mass mAVal
+                                          , _mHp    = Mass mHpVal
+                                          , _angs   = mkAngles tanbVal cosbaVal
+                                          }) mHVals mAVals
+    putStrLn "-- Calculating the branching ratios of the heavy Higgs boson..."
+    brs <- mapM (getBRH2 as) inps
+    putStrLn "-- ... done."
 
     let outfile = fromMaybe "output_h2.dat" (output input)
     withBinaryFile outfile WriteMode $ \h -> do
@@ -61,7 +65,7 @@ main = do
 
 data InputArgs w = InputArgs
     { mtype  :: w ::: Maybe Int    <?> "model type (either 1 or 2)"
-    , mH     :: w ::: Double       <?> "heavy Higgs mass"
+    , mH     :: w ::: [Double]     <?> "heavy Higgs mass"
     , mA     :: w ::: Maybe Double <?> "heavy mass scale (m_A if MSSM)"
     , mHp    :: w ::: Double       <?> "charged Higgs mass"
     , tanb   :: w ::: Double       <?> "tan(beta)"
@@ -82,3 +86,6 @@ header = B.pack $ "# " <>
           , "ww", "zz", "gammagamma", "gg"
           , "hh", "HpHm", "HW", "HWstar"
           ])
+
+stepsize :: Double
+stepsize = 0.1

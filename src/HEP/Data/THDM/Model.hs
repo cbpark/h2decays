@@ -37,6 +37,6 @@ renderInputParam InputParam {..} =
        <> space <> (byteString . toFixed 1) tanb
        <> space <> (byteString . toFixed 2) cosba
   where
-    space = stringUtf8 "  "
+    space = stringUtf8 " "
 
 type DecayWidth m = AlphaS -> InputParam -> m Double
