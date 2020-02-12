@@ -40,16 +40,16 @@ h2QQ :: MonadIO m => MassiveQuark -> HQQCoupling -> DecayWidth m
 h2QQ q coup as InputParam {..} = do
     let m = getMass _mH
     mqMS <- mMSbar as m q
-    let gH = coup _mdtyp mqMS _angs
-        beta = betaF _mH (poleMass q)
+    let !gH = coup _mdtyp mqMS _angs
+        !beta = betaF _mH (poleMass q)
 
     x <- (/pi) <$> alphasQ as m
-    let nf = nLightQ q
+    let !nf = nLightQ q
         -- Eq.(2.11) of https://arxiv.org/abs/hep-ph/0503172
         deltaQQ = 5.67 * x
                   + (35.94 - 1.36 * nf) * x ** 2
                   + (164.14 - 25.77 * nf + 0.26 * nf * nf) * x ** 3
-        mH2 = m * m
+        !mH2 = m * m
         -- Eq.(2.12) of https://arxiv.org/abs/hep-ph/0503172
         deltaH2 = (1.57
                    - 2.0 / 3 * log (mH2 / mt2)
@@ -62,12 +62,12 @@ h2TT :: MonadIO m => DecayWidth m
 h2TT as InputParam {..} = do
     let m = getMass _mH
     mtMS <- mMSbar as m Top
-    let gH = gHUU _mdtyp mtMS _angs
-        betaPole = betaF _mH (poleMass Top)
-        betaMS   = betaF _mH mtMS
-        betaMS2  = betaMS * betaMS
-        kappa    = (1 - betaMS) / (1 + betaMS)
-        logKappa = log kappa
+    let !gH = gHUU _mdtyp mtMS _angs
+        !betaPole = betaF _mH (poleMass Top)
+        !betaMS   = betaF _mH mtMS
+        !betaMS2  = betaMS * betaMS
+        !kappa    = (1 - betaMS) / (1 + betaMS)
+        !logKappa = log kappa
 
         -- Eq. (2.15) of https://arxiv.org/abs/hep-ph/0503172
         aBeta = (1 + betaMS2)
@@ -90,11 +90,11 @@ data EWBosons = Wboson | Zboson deriving Eq
 
 h2VV :: MonadIO m => EWBosons -> DecayWidth m
 h2VV v _ InputParam {..} = do
-    let m = getMass _mH
-        cosba = cosBetaAlpha _angs
-        (deltaV, x) | v == Wboson = (2, mW `massRatio` _mH)
+    let (deltaV, x) | v == Wboson = (2, mW `massRatio` _mH)
                     | otherwise   = (1, mZ `massRatio` _mH)
-        x2 = x * x
+        !x2 = x * x
+        cosba = cosBetaAlpha _angs
+        m = getMass _mH
     return $ deltaV * m ** 3 * cosba ** 2 / (64 * pi * vEW2)
              * sqrt (1 - 4 * x2) * (1 - 4 * x2 + 12 * x2 * x2)
 
@@ -114,11 +114,11 @@ h2GG as InputParam {..} = do
     (mtMS, mbMS, mcMS) <- mMSbarHeavy as m
     alphas <- alphasQ as m
 
-    let gHtt = gHUU _mdtyp mtMS _angs
-        gHbb = gHDD _mdtyp mbMS _angs
-        gHcc = gHUU _mdtyp mcMS _angs
+    let !gHtt = gHUU _mdtyp mtMS _angs
+        !gHbb = gHDD _mdtyp mbMS _angs
+        !gHcc = gHUU _mdtyp mcMS _angs
 
-        m2 = m * m
+        !m2 = m * m
         args = (3 * vEW / (4 * sqrt2) *) <$> sum
                (zipWith (argF m2) [mtMS, mbMS, mcMS] [gHtt, gHbb, gHcc])
 
@@ -130,16 +130,16 @@ h2GaGa as InputParam {..} = do
     let m = getMass _mH
     (mtMS, mbMS, mcMS) <- mMSbarHeavy as m
 
-    let gHtt = gHUU _mdtyp mtMS _angs
+    let !gHtt = gHUU _mdtyp mtMS _angs
         qt2 = 4.0 / 9
-        gHbb = gHDD _mdtyp mbMS _angs
+        !gHbb = gHDD _mdtyp mbMS _angs
         qb2 = 1.0 / 9
-        gHcc = gHUU _mdtyp mcMS _angs
+        !gHcc = gHUU _mdtyp mcMS _angs
         qc2 = qt2
-        gHTaTa = gHDD _mdtyp mtau _angs
+        !gHTaTa = gHDD _mdtyp mtau _angs
         qta2 = 1
 
-        m2 = m * m
+        !m2 = m * m
         -- fermion contributions
         arg1 = (vEW / sqrt2 *) <$> sum
                (zipWith (argF m2)
@@ -151,7 +151,7 @@ h2GaGa as InputParam {..} = do
         arg2 = (cosba *) <$> a1 (m2 / (4 * massSq mW))
 
         mHp2 = massSq _mHp
-        gHp = gHHpHm _mH _mA _mHp _angs
+        !gHp = gHHpHm _mH _mA _mHp _angs
         -- H+ contributions
         arg3 = (vEW / (sqrt2 * mHp2) * gHp *) <$> a0 (m2 / (4 * mHp2))
 
@@ -191,8 +191,8 @@ h2HpHm as inp@InputParam {..} = do
     let m  = getMass _mH
         mp = getMass _mHp
 
-        mphip = 2 * mp + 4.0
-        mphim = 2 * mp - 1.0
+        !mphip = 2 * mp + 4.0
+        !mphim = 2 * mp - 1.0
 
     if | m > mphip           -> h2HpHm2body as inp
        | m > mp && m < mphim -> h2HpHm3body as inp
@@ -252,12 +252,12 @@ h2HpUD (mU, mUMS) (mD, mDMS) ncolor vCKM InputParam {..} =
        then 0
        else let !gH = gHHpHm _mH _mA _mHp _angs
                 (!gf, !gf') = gHpUD _mdtyp mUMS mDMS _angs
-                gf2  = gf * gf
-                gf2' = gf' * gf'
+                !gf2  = gf * gf
+                !gf2' = gf' * gf'
 
-                kp = (mp / m) ** 2
-                k1 = (mu / m) ** 2
-                k2 = (md / m) ** 2
+                !kp = (mp / m) ** 2
+                !k1 = (mu / m) ** 2
+                !k2 = (md / m) ** 2
                 x1limits = x1minmax kp k1 k2
 
                 dGamma x1 x2 =
@@ -279,9 +279,9 @@ h2HpWh _ InputParam {..} = do
             let !gH = gHHpHm _mH _mA _mHp _angs
                 !gV = gW * cosBetaAlpha _angs / 2
 
-                kp = (_mHp `massRatio` _mH) ** 2
-                kv = (  mW `massRatio` _mH) ** 2
-                kh = (  mh `massRatio` _mH) ** 2
+                !kp = (_mHp `massRatio` _mH) ** 2
+                !kv = (  mW `massRatio` _mH) ** 2
+                !kh = (  mh `massRatio` _mH) ** 2
                 x1limits = x1minmax kp kv kh
 
                 dGamma xv xh =
@@ -300,8 +300,8 @@ h2HpWm _ inp@InputParam {..} = do
         mp = getMass _mHp
         mw = getMass mW
 
-        mphip = mp + mw + 4.0
-        mphim = mp + mw - 1.0
+        !mphip = mp + mw + 4.0
+        !mphim = mp + mw - 1.0
 
     -- the trick taken from H-COUP.
     -- see SM_Hdecay.F90 of https://arxiv.org/abs/1910.12769
@@ -311,8 +311,8 @@ h2HpWm _ inp@InputParam {..} = do
            | m > mphim && m < mphip ->
                  let inpP = inp { _mH = Mass mphip }
                      inpM = inp { _mH = Mass mphim }
-                     widthP = h2HW2body inpP
-                     widthM = h2HW3body inpM
+                     !widthP = h2HW2body inpP
+                     !widthM = h2HW3body inpM
                  in widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
            | otherwise -> 0
 
@@ -332,8 +332,8 @@ h2HW3body InputParam {..} =
         mp = getMass _mHp
 
         c = 9 * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
-        k1 = mp * mp / m2
-        k2 = mW2 / m2
+        !k1 = mp * mp / m2
+        !k2 = mW2 / m2
         g = gFunc k1 k2
         sinba = sinBetaAlpha _angs
     in if m < mp then 0 else c * g * sinba ** 2

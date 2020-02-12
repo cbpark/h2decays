@@ -9,7 +9,9 @@ import HEP.Data.THDM.Model               (InputParam, renderInputParam)
 
 import Data.ByteString.Builder
 import Data.Double.Conversion.ByteString (toExponential, toFixed)
+import Pipes                             (Pipe, await, yield)
 
+import Control.Monad                     (forever)
 import Control.Monad.IO.Class            (MonadIO)
 
 data BRH2 = BRH2 { _totalWidth :: Double
@@ -27,8 +29,12 @@ data BRH2 = BRH2 { _totalWidth :: Double
                  , _h2HpmW     :: Double
                  }
 
-getBRH2 :: MonadIO m => AlphaS -> InputParam -> m Builder
-getBRH2 as inp = renderBRH2 inp <$> brH2 as inp
+-- getBRH2 :: MonadIO m => AlphaS -> InputParam -> m Builder
+-- getBRH2 as inp = renderBRH2 inp <$> brH2 as inp
+getBRH2 :: MonadIO m => AlphaS -> Pipe InputParam Builder m ()
+getBRH2 as = forever $ do
+    inp <- await
+    fmap (renderBRH2 inp) (brH2 as inp) >>= yield
 
 renderBRH2 :: InputParam -> Maybe BRH2 -> Builder
 renderBRH2 inp brh2 = renderInputParam inp <> space <> renderBRH2' brh2
@@ -101,8 +107,12 @@ data BRHp = BRHp { _totalWidth :: Double
                  , _hpWh       :: Double
                  }
 
-getBRHp :: MonadIO m => AlphaS -> InputParam -> m Builder
-getBRHp as inp = renderBRHp inp <$> brHp as inp
+-- getBRHp :: MonadIO m => AlphaS -> InputParam -> m Builder
+-- getBRHp as inp = renderBRHp inp <$> brHp as inp
+getBRHp :: MonadIO m => AlphaS -> Pipe InputParam Builder m ()
+getBRHp as = forever $ do
+    inp <- await
+    fmap (renderBRHp inp) (brHp as inp) >>= yield
 
 renderBRHp :: InputParam -> Maybe BRHp -> Builder
 renderBRHp inp brhp = renderInputParam inp <> space <> renderBRHp' brhp

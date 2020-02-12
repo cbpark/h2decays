@@ -7,21 +7,24 @@
 
 module Main where
 
-import           HEP.Data.AlphaS         (initAlphaS)
+import           HEP.Data.AlphaS          (initAlphaS)
 import           HEP.Data.Kinematics
 import           HEP.Data.THDM
-import           HEP.Data.Util           (mkAngles)
+import           HEP.Data.Util            (mkAngles)
 
-import           Data.ByteString.Builder (hPutBuilder)
-import           Data.ByteString.Char8   (ByteString)
-import qualified Data.ByteString.Char8   as B
-import qualified Data.Vector             as V
+import           Blaze.ByteString.Builder (toByteString)
+-- import           Data.ByteString.Builder  (hPutBuilder)
+import           Data.ByteString.Char8    (ByteString, hPutStrLn, pack)
+import qualified Data.Vector              as V
 import           Options.Generic
+import           Pipes                    (each, runEffect, (>->))
+import qualified Pipes.ByteString         as PB
+import qualified Pipes.Prelude            as P
 
-import           Control.Monad           (when)
-import           Data.Maybe              (fromMaybe)
-import           System.Exit             (die)
-import           System.IO               (IOMode (..), withBinaryFile)
+import           Control.Monad            (when)
+import           Data.Maybe               (fromMaybe)
+import           System.Exit              (die)
+import           System.IO                (IOMode (..), withFile)
 
 main :: IO ()
 main = do
@@ -52,13 +55,14 @@ main = do
                                           , _mHp    = Mass mHpVal
                                           , _angs   = mkAngles tanbVal cosbaVal
                                           }) mHVals mAVals
+
     putStrLn "-- Calculating the branching ratios of the heavy Higgs boson..."
-    brs <- V.mapM (getBRH2 as) inps
 
     let outfile = fromMaybe "output_h2.dat" (output input)
-    withBinaryFile outfile WriteMode $ \h -> do
-        B.hPutStrLn h header
-        V.mapM_ (hPutBuilder h) brs
+    withFile outfile WriteMode $ \h -> do
+        hPutStrLn h header
+        runEffect $
+            each inps >-> getBRH2 as >-> P.map toByteString >-> PB.toHandle h
 
     putStrLn $ "-- " ++ outfile ++ " generated."
 
@@ -76,7 +80,7 @@ instance ParseRecord (InputArgs Wrapped)
 deriving instance Show (InputArgs Unwrapped)
 
 header :: ByteString
-header = B.pack $ "# " <>
+header = pack $ "# " <>
          foldl1 (\v1 v2 -> v1 <> ", " <> v2)
          (zipWith (\n v -> "(" <> show n <> ") " <> v) ([1..] :: [Int])
           [ "type", "mH", "mA", "mHp", "tanb", "cosba"
