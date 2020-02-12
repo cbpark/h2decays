@@ -1,4 +1,5 @@
-{ mkDerivation, base, bytestring, double-conversion, gsl, lhapdf, optparse-generic, stdenv
+{ mkDerivation, base, bytestring, double-conversion, gsl
+, hmatrix-gsl, lhapdf, optparse-generic, stdenv, vector
 }:
 mkDerivation {
   pname = "h2decays";
@@ -7,7 +8,8 @@ mkDerivation {
   isLibrary = false;
   isExecutable = true;
   executableHaskellDepends = [
-    base bytestring double-conversion optparse-generic
+    base bytestring double-conversion hmatrix-gsl optparse-generic
+    vector
   ];
   executableSystemDepends = [ gsl lhapdf ];
   homepage = "https://github.com/cbpark/h2decays";
