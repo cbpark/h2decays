@@ -8,9 +8,12 @@ module HEP.Data.Util
     , sinBetaAlpha
     , lambdaF
     , dilog
+    , diIntegral
     -- , midpoint
     -- , trapezoid
     ) where
+
+import Numeric.GSL.Integration (integrateQAGS)
 
 newtype Angles = Angles (Double, Double) deriving Show
 
@@ -51,6 +54,18 @@ foreign import ccall "gsl/gsl_sf_dilog.h gsl_sf_dilog" gsl_sf_dilog
 
 dilog :: Double -> Double
 dilog = gsl_sf_dilog
+
+diIntegral :: (Double -> Double -> Double)          -- ^ differential decay width
+           -> (Double -> Double, Double -> Double)  -- ^ limits of inner integral
+           -> (Double, Double)                      -- ^ limits of outer integral
+           -> Double                                -- ^ precision (eg. 1e-9)
+           -> Int                                   -- ^ size of workspace
+           -> Double
+diIntegral dGamma (x1min, x1max) (x2min, x2max) prec size = g
+  where
+    -- f x2 = midpoint 1000 (`dGamma` x2) (x1min x2) (x1max x2)
+    f x2 = fst $ integrateQAGS prec size (`dGamma` x2) (x1min x2) (x1max x2)
+    g    = fst $ integrateQAGS prec size f x2min x2max
 
 {-
 -- | Midpoint integration.

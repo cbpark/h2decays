@@ -3,18 +3,16 @@
 
 module HEP.Data.THDM.DecayWidth.H2 where
 
-import HEP.Data.AlphaS         (alphasQ)
+import HEP.Data.AlphaS        (alphasQ)
 import HEP.Data.Constants
-import HEP.Data.Kinematics     (Mass (..), betaF, massRatio, massSq)
+import HEP.Data.Kinematics    (Mass (..), betaF, massRatio, massSq)
 import HEP.Data.Quark
 import HEP.Data.THDM.Coupling
-import HEP.Data.THDM.Model     (DecayWidth, InputParam (..))
+import HEP.Data.THDM.Model    (DecayWidth, InputParam (..))
 import HEP.Data.Util
 
-import Numeric.GSL.Integration (integrateQAGS)
-
-import Control.Monad.IO.Class  (MonadIO)
-import Data.Complex            (Complex (..), magnitude)
+import Control.Monad.IO.Class (MonadIO)
+import Data.Complex           (Complex (..), magnitude)
 
 h2LL :: MonadIO m => Mass -> DecayWidth m
 h2LL ml _ InputParam {..} = do
@@ -237,25 +235,13 @@ h2HpUD (mU, mUMS) (mD, mDMS) ncolor vCKM InputParam {..} =
                      - 2 * (gf2 - gf2') * sqrt (k1 * k2))
                     / ((1 - x1 - x2) ** 2 + 0.01 * kp)
 
-                -- f x2 = midpoint 1000 (`dGamma` x2) (x1min x2) (x1max x2)
-                f x2 = fst $ integrateQAGS 1.0e-9 1000 (`dGamma` x2)
-                             (x1min x2) (x1max x2)
-                (g, _) = integrateQAGS 1.0e-9 1000 f
-                         (2 * sqrt k2) (1 - kp - k1 + k2 - sqrt (kp * k1))
-
+                g = diIntegral dGamma (x1min, x1max)
+                               (2 * sqrt k2, 1 - kp - k1 + k2 - sqrt (kp * k1))
+                               1.0e-9 1000
             in ncolor * gH * gH * vCKM * vCKM / (128 * pi3 * m) * g
 
-x1minmax :: Double -> Double -> Double -> (Double -> Double, Double -> Double)
-x1minmax kphi k1 k2 =
-    let kappa x2 = 1 - x2 - kphi + k1 + k2
-        term1 x2 = kappa x2 * (1 - x2 / 2)
-        term2 x2 = sqrt . abs $
-                   (x2 * x2 / 4 - k2) * (kappa x2 ** 2 - 4 * k1 * (1 - x2 + k2))
-
-        fac x2 = 1 / (1 - x2 + k2)
-        x1min x2 = fac x2 * (term1 x2 - term2 x2)
-        x1max x2 = fac x2 * (term1 x2 + term2 x2)
-    in (x1min, x1max)
+h2HpWh :: MonadIO m => DecayWidth m
+h2HpWh = undefined
 
 -- | H --> H^+ W^-
 h2HpWm :: MonadIO m => DecayWidth m
@@ -316,3 +302,15 @@ gFunc k1 k2 =
                 term2 = (lam12 - 2 * k1) * log k1
                 term3 = (1 - k1) / 3 * (5 * (1 + k1) - 4 * k2 + 2 * lam12 / k2)
             in 0.25 * (term1 + term2 + term3)
+
+x1minmax :: Double -> Double -> Double -> (Double -> Double, Double -> Double)
+x1minmax kphi k1 k2 =
+    let kappa x2 = 1 - x2 - kphi + k1 + k2
+        term1 x2 = kappa x2 * (1 - x2 / 2)
+        term2 x2 = sqrt . abs $
+                   (x2 * x2 / 4 - k2) * (kappa x2 ** 2 - 4 * k1 * (1 - x2 + k2))
+
+        fac x2 = 1 / (1 - x2 + k2)
+        x1min x2 = fac x2 * (term1 x2 - term2 x2)
+        x1max x2 = fac x2 * (term1 x2 + term2 x2)
+    in (x1min, x1max)
