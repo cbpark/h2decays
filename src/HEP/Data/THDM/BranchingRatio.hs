@@ -69,11 +69,11 @@ brH2 as inp = do
     gamH2GG       <- h2GG       as inp
     gamH2hh       <- h2hh       as inp
     gamH2HpHm     <- h2HpHm     as inp
-    -- gamH2HpTB     <- h2HpTB     as inp
+    gamH2HpTB     <- h2HpTB     as inp
     gamH2HpWm     <- h2HpWm     as inp
 
     let gamH2HpmW  = 2 * gamH2HpWm  -- BR(H --> H+ W-) + BR(H --> H- W+)
-        gamH2HpmTB = 0 -- 2 * gamH2HpTB
+        gamH2HpmTB = 2 * gamH2HpTB
         totalWidth = sum [ gamH2TT, gamH2BB, gamH2CC , gamH2TauTau, gamH2MuMu
                          , gamH2WW, gamH2ZZ, gamH2GaGa, gamH2GG
                          , gamH2hh, gamH2HpHm, gamH2HpmTB

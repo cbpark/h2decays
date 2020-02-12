@@ -89,4 +89,4 @@ header = B.pack $ "# " <>
           ])
 
 stepsize :: Double
-stepsize = 0.1
+stepsize = 0.5

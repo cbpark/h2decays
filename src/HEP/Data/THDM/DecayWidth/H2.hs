@@ -11,7 +11,7 @@ import HEP.Data.THDM.Coupling
 import HEP.Data.THDM.Model     (DecayWidth, InputParam (..))
 import HEP.Data.Util
 
--- import Numeric.GSL.Integration
+import Numeric.GSL.Integration (integrateQAGS)
 
 import Control.Monad.IO.Class  (MonadIO)
 import Data.Complex            (Complex (..), magnitude)
@@ -37,7 +37,7 @@ h2BB = h2QQ Bottom gHDD
 -- | H --> c cbar
 h2CC = h2QQ Charm  gHUU
 
-h2QQ :: MonadIO m => MassiveQuark -> QuarkCoupling -> DecayWidth m
+h2QQ :: MonadIO m => MassiveQuark -> HQQCoupling -> DecayWidth m
 h2QQ q coup as InputParam {..} = do
     let m = getMass _mH
     mqMS <- mMSbar as m q
@@ -189,44 +189,55 @@ h2hh   as inp@InputParam {..} =
 h2HpHm as inp@InputParam {..} =
     h2SS (betaF _mH _mHp) (gHHpHm _mH _mA _mHp _angs) 2 as inp
 
--- h2HpTB :: MonadIO m => DecayWidth m
--- h2HpTB as InputParam {..} = do
---     let [m, mp, mt', mb'] = fmap getMass [_mH, _mHp, mt, mb]
---     if m < mp + mt' + mb' || m > 2 * mp
---         then return 0
---         else do
---             (Mass mtMS, Mass mbMS, _) <- mMSbarHeavy as m
+h2HpTB :: MonadIO m => DecayWidth m
+h2HpTB as inp@InputParam {..} = do
+    let m = getMass _mH
+    (mtMS, mbMS, _) <- mMSbarHeavy as m
+    return $ h2HpUD (mt, mtMS) (mb, mbMS) 3 vTB inp
 
---             let gH = gHHpHm _mH _mA _mHp _angs
+h2HpCS :: MonadIO m => DecayWidth m
+h2HpCS as inp@InputParam {..} = do
+    let m = getMass _mH
+    mcMS <- mMSbar as m Charm
+    return $ h2HpUD (mc, mcMS) (0, 0) 3 vCS inp
 
---                 tanb = tanBeta _angs
---                 gf  | _mdtyp == TypeI  = mbMS - mtMS
---                     | _mdtyp == TypeII = mbMS * tanb + mtMS / tanb
---                     | otherwise        = 0
---                 gf2 = gf * gf
---                 gf' | _mdtyp == TypeI  = mbMS + mtMS
---                     | _mdtyp == TypeII = mbMS * tanb - mtMS / tanb
---                     | otherwise        = 0
---                 gf2' = gf' * gf'
+h2HpTauNu, h2HpMuNu :: MonadIO m => DecayWidth m
+h2HpTauNu = h2HpLNu mtau
+h2HpMuNu  = h2HpLNu mmu
 
---                 kp = (_mHp `massRatio` _mH) ** 2
---                 k1 = (  mt `massRatio` _mH) ** 2
---                 k2 = 0 -- (  mb `massRatio` _mH) ** 2
---                 (x1min, x1max) = x1minmax kp k1 k2
+h2HpLNu :: MonadIO m => Mass -> DecayWidth m
+h2HpLNu mL _ inp = return $ h2HpUD (mL, mL) (0, 0) 1 1 inp
 
---                 f x2 = (gf2 + gf2')
---                        * ((x1max x2 - x1min x2) * (kp - k1 - k2)
---                           / ((1 - x2 - x1min x2) * (1 - x2 - x1max x2) + 1.0e-8)
---                           -- + log ((1 - x2 - x1max x2) / (1 - x2 - x1min x2))
---                          )
---                        -- - 2 * (gf2 - gf2')
---                        -- * sqrt (k1 * k2) * (x1max x2 - x1min x2)
---                        -- / (1 - x2 - x1min x2) / (1 - x2 - x1max x2)
+h2HpUD :: (Mass, Mass)  -- ^ (pole mass, running mass) of up-type quark
+       -> (Mass, Mass)  -- ^ (pole mass, running mass) of down-type quark
+       -> Double        -- ^ N_{color}
+       -> Double        -- ^ V_{ud}
+       -> InputParam
+       -> Double
+h2HpUD (mU, mUMS) (mD, mDMS) ncolor vCKM InputParam {..} =
+    let [m, mp, mu, md] = fmap getMass [_mH, _mHp, mU, mD]
+    in if m < mp + mu + md
+       then 0
+       else let gH = gHHpHm _mH _mA _mHp _angs
+                (gf, gf') = gHpUD _mdtyp mUMS mDMS _angs
+                gf2  = gf * gf
+                gf2' = gf' * gf'
 
---                 (g, _) = integrateQAGS 1.0e-9 10000
---                          f (2 * sqrt k2) (1 - kp - k1 + k2 - sqrt (kp * k1))
+                kp = (_mHp `massRatio` _mH) ** 2
+                k1 = (mu / m) ** 2
+                k2 = (md / m) ** 2
+                (x1min, x1max) = x1minmax kp k1 k2
 
---             return $ 3 * gH * gH * vUD * vUD / (128 * pi3 * m) * g
+                dGamma x1 x2 =
+                    ((gf2 + gf2') * (x1 + x2 - 1 + kp - k1 - k2)
+                     - 2 * (gf2 - gf2') * sqrt (k1 * k2))
+                    / ((1 - x1 - x2) ** 2 + 0.01 * kp)
+
+                f x2 = midpoint 100 (`dGamma` x2) (x1min x2) (x1max x2)
+                (g, _) = integrateQAGS 1.0e-9 1000 f
+                         (2 * sqrt k2) (1 - kp - k1 + k2 - sqrt (kp * k1))
+
+            in ncolor * gH * gH * vCKM * vCKM / (128 * pi3 * m) * g
 
 x1minmax :: Double -> Double -> Double -> (Double -> Double, Double -> Double)
 x1minmax kphi k1 k2 =
