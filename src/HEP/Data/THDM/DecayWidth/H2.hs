@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns    #-}
 {-# LANGUAGE MultiWayIf      #-}
 {-# LANGUAGE RecordWildCards #-}
 
@@ -249,8 +250,8 @@ h2HpUD (mU, mUMS) (mD, mDMS) ncolor vCKM InputParam {..} =
     let [m, mp, mu, md] = fmap getMass [_mH, _mHp, mU, mD]
     in if m < mp + mu + md
        then 0
-       else let gH = gHHpHm _mH _mA _mHp _angs
-                (gf, gf') = gHpUD _mdtyp mUMS mDMS _angs
+       else let !gH = gHHpHm _mH _mA _mHp _angs
+                (!gf, !gf') = gHpUD _mdtyp mUMS mDMS _angs
                 gf2  = gf * gf
                 gf2' = gf' * gf'
 
@@ -275,8 +276,8 @@ h2HpWh _ InputParam {..} = do
     if _mH < mW + mh
         then return 0
         else do
-            let gH = gHHpHm _mH _mA _mHp _angs
-                gV = gW * cosBetaAlpha _angs / 2
+            let !gH = gHHpHm _mH _mA _mHp _angs
+                !gV = gW * cosBetaAlpha _angs / 2
 
                 kp = (_mHp `massRatio` _mH) ** 2
                 kv = (  mW `massRatio` _mH) ** 2
