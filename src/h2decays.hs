@@ -83,8 +83,7 @@ header = B.pack $ "# " <>
           , "width"
           , "tt", "bb", "cc", "tautau", "mumu"
           , "ww", "zz", "gammagamma", "gg"
-          , "hh", "HpHm", "HpmTB"
-          , "HpmW"
+          , "hh", "HpHm", "HpmW"
           ])
 
 stepsize :: Double

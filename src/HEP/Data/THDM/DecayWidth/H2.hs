@@ -179,13 +179,42 @@ h2SS :: MonadIO m => Double -> Double -> Double -> DecayWidth m
 h2SS beta g symF _ InputParam {..} =
     return $ symF * g ** 2 / (32 * pi * getMass _mH) * beta
 
-h2hh, h2HpHm :: MonadIO m => DecayWidth m
 -- | H --> h h
-h2hh   as inp@InputParam {..} =
-    h2SS (betaF _mH mh)   (gHhh _mH _mA _angs)        1 as inp
+h2hh :: MonadIO m => DecayWidth m
+h2hh as inp@InputParam {..} =
+    h2SS (betaF _mH mh) (gHhh _mH _mA _angs) 1 as inp
+
 -- | H --> H^+ H^-
-h2HpHm as inp@InputParam {..} =
+h2HpHm :: MonadIO m => DecayWidth m
+h2HpHm as inp@InputParam {..} = do
+    let m  = getMass _mH
+        mp = getMass _mHp
+
+        mphip = 2 * mp + 4.0
+        mphim = 2 * mp - 1.0
+
+    if | m > mphip           -> h2HpHm2body as inp
+       | m > mp && m < mphim -> h2HpHm3body as inp
+       | otherwise           -> do
+             let inpP = inp { _mH = Mass mphip }
+                 inpM = inp { _mH = Mass mphim }
+             widthP <- h2HpHm2body as inpP
+             widthM <- h2HpHm3body as inpM
+             return $ widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
+       | otherwise -> return 0
+
+h2HpHm2body :: MonadIO m => DecayWidth m
+h2HpHm2body as inp@InputParam {..} =
     h2SS (betaF _mH _mHp) (gHHpHm _mH _mA _mHp _angs) 2 as inp
+
+h2HpHm3body :: MonadIO m => DecayWidth m
+h2HpHm3body as inp =
+    fmap (* 2) (sum <$> sequence [ h2HpTB    as inp
+                                 , h2HpCS    as inp
+                                 , h2HpTauNu as inp
+                                 , h2HpMuNu  as inp
+                                 , h2HpWh    as inp
+                                 ])
 
 -- | H --> H^+ (H^-* --> t b)
 h2HpTB :: MonadIO m => DecayWidth m
@@ -228,20 +257,40 @@ h2HpUD (mU, mUMS) (mD, mDMS) ncolor vCKM InputParam {..} =
                 kp = (_mHp `massRatio` _mH) ** 2
                 k1 = (mu / m) ** 2
                 k2 = (md / m) ** 2
-                (x1min, x1max) = x1minmax kp k1 k2
+                x1limits = x1minmax kp k1 k2
 
                 dGamma x1 x2 =
                     ((gf2 + gf2') * (x1 + x2 - 1 + kp - k1 - k2)
                      - 2 * (gf2 - gf2') * sqrt (k1 * k2))
                     / ((1 - x1 - x2) ** 2 + 0.01 * kp)
 
-                g = diIntegral dGamma (x1min, x1max)
+                g = diIntegral dGamma x1limits
                                (2 * sqrt k2, 1 - kp - k1 + k2 - sqrt (kp * k1))
                                1.0e-9 1000
             in ncolor * gH * gH * vCKM * vCKM / (128 * pi3 * m) * g
 
 h2HpWh :: MonadIO m => DecayWidth m
-h2HpWh = undefined
+h2HpWh _ InputParam {..} = do
+    let m = getMass _mH
+    if _mH < mW + mh
+        then return 0
+        else do
+            let gH = gHHpHm _mH _mA _mHp _angs
+                gV = gW * cosBetaAlpha _angs / 2
+
+                kp = (_mHp `massRatio` _mH) ** 2
+                kv = (  mW `massRatio` _mH) ** 2
+                kh = (  mh `massRatio` _mH) ** 2
+                x1limits = x1minmax kp kv kh
+
+                dGamma xv xh =
+                    ((xv + xh - 1 + kp - kv - kh) ** 2 - 4 * kv * kh)
+                    / ((1 - xv - xh) ** 2 + 0.01 * kp)
+
+                g = diIntegral dGamma x1limits
+                               (2 * sqrt kh, 1 - kp - kv + kh - sqrt (kp * kv))
+                               1.0e-9 1000
+            return $ gH * gH * gV * gV * m / (256 * pi3 * mW2) * g
 
 -- | H --> H^+ W^-
 h2HpWm :: MonadIO m => DecayWidth m
@@ -261,9 +310,9 @@ h2HpWm _ inp@InputParam {..} = do
                | m > mphim && m < mphip ->
                      let inpP = inp { _mH = Mass mphip }
                          inpM = inp { _mH = Mass mphim }
-                     in h2HW2body inpP
-                        - h2HW3body inpM / (mphip - mphim) * (m - mphim)
-                        + h2HW3body inpM
+                         widthP = h2HW2body inpP
+                         widthM = h2HW3body inpM
+                     in widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
                | otherwise -> 0
 
     return width

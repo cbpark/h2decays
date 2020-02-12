@@ -24,7 +24,6 @@ data BRH2 = BRH2 { _totalWidth :: Double
                  , _h2GG       :: Double
                  , _h2hh       :: Double
                  , _h2HpHm     :: Double
-                 , _h2HpmTB    :: Double
                  , _h2HpmW     :: Double
                  }
 
@@ -37,7 +36,7 @@ renderBRH2 inp brh2 = renderInputParam inp <> space <> renderBRH2' brh2
     renderBRH2' :: Maybe BRH2 -> Builder
     renderBRH2' Nothing          =
         (byteString . toFixed 4) 0
-        <> foldr1 (<>) (replicate 13 (space <> convDbl 0))
+        <> foldr1 (<>) (replicate 12 (space <> convDbl 0))
         <> endLine
     renderBRH2' (Just BRH2 {..}) =
         (byteString . toFixed 4) _totalWidth
@@ -52,7 +51,6 @@ renderBRH2 inp brh2 = renderInputParam inp <> space <> renderBRH2' brh2
         <> space <> convDbl _h2GG
         <> space <> convDbl _h2hh
         <> space <> convDbl _h2HpHm
-        <> space <> convDbl _h2HpmTB
         <> space <> convDbl _h2HpmW
         <> endLine
 
@@ -69,14 +67,12 @@ brH2 as inp = do
     gamH2GG       <- h2GG       as inp
     gamH2hh       <- h2hh       as inp
     gamH2HpHm     <- h2HpHm     as inp
-    gamH2HpTB     <- h2HpTB     as inp
     gamH2HpWm     <- h2HpWm     as inp
 
     let gamH2HpmW  = 2 * gamH2HpWm  -- BR(H --> H+ W-) + BR(H --> H- W+)
-        gamH2HpmTB = 2 * gamH2HpTB
         totalWidth = sum [ gamH2TT, gamH2BB, gamH2CC , gamH2TauTau, gamH2MuMu
                          , gamH2WW, gamH2ZZ, gamH2GaGa, gamH2GG
-                         , gamH2hh, gamH2HpHm, gamH2HpmTB
+                         , gamH2hh, gamH2HpHm
                          , gamH2HpmW
                          ]
 
@@ -94,7 +90,6 @@ brH2 as inp = do
                               , _h2GG       = gamH2GG     / totalWidth
                               , _h2hh       = gamH2hh     / totalWidth
                               , _h2HpHm     = gamH2HpHm   / totalWidth
-                              , _h2HpmTB    = gamH2HpmTB  / totalWidth
                               , _h2HpmW     = gamH2HpmW   / totalWidth
                               }
 
