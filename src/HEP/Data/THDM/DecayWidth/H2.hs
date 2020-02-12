@@ -189,12 +189,14 @@ h2hh   as inp@InputParam {..} =
 h2HpHm as inp@InputParam {..} =
     h2SS (betaF _mH _mHp) (gHHpHm _mH _mA _mHp _angs) 2 as inp
 
+-- | H --> H^+ (H^-* --> t b)
 h2HpTB :: MonadIO m => DecayWidth m
 h2HpTB as inp@InputParam {..} = do
     let m = getMass _mH
     (mtMS, mbMS, _) <- mMSbarHeavy as m
     return $ h2HpUD (mt, mtMS) (mb, mbMS) 3 vTB inp
 
+-- | H --> H^+ (H^-* --> c s)
 h2HpCS :: MonadIO m => DecayWidth m
 h2HpCS as inp@InputParam {..} = do
     let m = getMass _mH
@@ -202,7 +204,9 @@ h2HpCS as inp@InputParam {..} = do
     return $ h2HpUD (mc, mcMS) (0, 0) 3 vCS inp
 
 h2HpTauNu, h2HpMuNu :: MonadIO m => DecayWidth m
+-- | H --> H^+ (H^-* --> tau nu)
 h2HpTauNu = h2HpLNu mtau
+-- | H --> H^+ (H^-* --> mu nu)
 h2HpMuNu  = h2HpLNu mmu
 
 h2HpLNu :: MonadIO m => Mass -> DecayWidth m
@@ -233,7 +237,9 @@ h2HpUD (mU, mUMS) (mD, mDMS) ncolor vCKM InputParam {..} =
                      - 2 * (gf2 - gf2') * sqrt (k1 * k2))
                     / ((1 - x1 - x2) ** 2 + 0.01 * kp)
 
-                f x2 = midpoint 100 (`dGamma` x2) (x1min x2) (x1max x2)
+                -- f x2 = midpoint 1000 (`dGamma` x2) (x1min x2) (x1max x2)
+                f x2 = fst $ integrateQAGS 1.0e-9 1000 (`dGamma` x2)
+                             (x1min x2) (x1max x2)
                 (g, _) = integrateQAGS 1.0e-9 1000 f
                          (2 * sqrt k2) (1 - kp - k1 + k2 - sqrt (kp * k1))
 

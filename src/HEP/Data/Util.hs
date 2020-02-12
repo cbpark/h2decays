@@ -8,11 +8,9 @@ module HEP.Data.Util
     , sinBetaAlpha
     , lambdaF
     , dilog
-    , midpoint
-    , trapezoid
+    -- , midpoint
+    -- , trapezoid
     ) where
-
-import qualified Data.Vector.Unboxed as U
 
 newtype Angles = Angles (Double, Double) deriving Show
 
@@ -54,6 +52,7 @@ foreign import ccall "gsl/gsl_sf_dilog.h gsl_sf_dilog" gsl_sf_dilog
 dilog :: Double -> Double
 dilog = gsl_sf_dilog
 
+{-
 -- | Midpoint integration.
 midpoint :: Int -> (Double -> Double) -> Double -> Double -> Double
 midpoint n f low high = dx * U.sum (U.map f points)
@@ -69,3 +68,4 @@ trapezoid n f low high = (dx *) $ (f low + f high) / 2 + U.sum (U.map f points)
     dx = (high - low) / fromIntegral n
     points = U.iterateN (n - 1) (+ dx) (low + dx)
 {-# INLINE trapezoid #-}
+-}

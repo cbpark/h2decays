@@ -54,12 +54,11 @@ main = do
                                           }) mHVals mAVals
     putStrLn "-- Calculating the branching ratios of the heavy Higgs boson..."
     brs <- V.mapM (getBRH2 as) inps
-    putStrLn "-- ... done."
 
     let outfile = fromMaybe "output_h2.dat" (output input)
     withBinaryFile outfile WriteMode $ \h -> do
         B.hPutStrLn h header
-        mapM_ (hPutBuilder h) brs
+        V.mapM_ (hPutBuilder h) brs
 
     putStrLn $ "-- " ++ outfile ++ " generated."
 
