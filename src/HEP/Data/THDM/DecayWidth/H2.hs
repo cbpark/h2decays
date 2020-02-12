@@ -237,7 +237,7 @@ h2HpTauNu = h2HpLNu mtau
 h2HpMuNu  = h2HpLNu mmu
 
 h2HpLNu :: MonadIO m => Mass -> DecayWidth m
-h2HpLNu mL _ inp = return $ h2HpUD (mL, mL) (0, 0) 1 1 inp
+h2HpLNu mL _ = return . h2HpUD (mL, mL) (0, 0) 1 1
 
 h2HpUD :: (Mass, Mass)  -- ^ (pole mass, running mass) of up-type quark
        -> (Mass, Mass)  -- ^ (pole mass, running mass) of down-type quark
@@ -254,7 +254,7 @@ h2HpUD (mU, mUMS) (mD, mDMS) ncolor vCKM InputParam {..} =
                 gf2  = gf * gf
                 gf2' = gf' * gf'
 
-                kp = (_mHp `massRatio` _mH) ** 2
+                kp = (mp / m) ** 2
                 k1 = (mu / m) ** 2
                 k2 = (md / m) ** 2
                 x1limits = x1minmax kp k1 k2
@@ -302,20 +302,18 @@ h2HpWm _ inp@InputParam {..} = do
         mphip = mp + mw + 4.0
         mphim = mp + mw - 1.0
 
-        -- the trick taken from H-COUP.
-        -- see SM_Hdecay.F90 of https://arxiv.org/abs/1910.12769
-        width =
-            if | m > mphip              -> h2HW2body inp
-               | m > mp    && m < mphim -> h2HW3body inp
-               | m > mphim && m < mphip ->
-                     let inpP = inp { _mH = Mass mphip }
-                         inpM = inp { _mH = Mass mphim }
-                         widthP = h2HW2body inpP
-                         widthM = h2HW3body inpM
-                     in widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
-               | otherwise -> 0
-
-    return width
+    -- the trick taken from H-COUP.
+    -- see SM_Hdecay.F90 of https://arxiv.org/abs/1910.12769
+    return $
+        if | m > mphip              -> h2HW2body inp
+           | m > mp    && m < mphim -> h2HW3body inp
+           | m > mphim && m < mphip ->
+                 let inpP = inp { _mH = Mass mphip }
+                     inpM = inp { _mH = Mass mphim }
+                     widthP = h2HW2body inpP
+                     widthM = h2HW3body inpM
+                 in widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
+           | otherwise -> 0
 
 h2HW2body :: InputParam -> Double
 h2HW2body InputParam {..} =
