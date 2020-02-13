@@ -17,9 +17,16 @@ extra-source-files:  README.md
                      csrc/alphas.h
 tested-with:         GHC == 8.6.5
 
-executable h2decays
-  main-is:             h2decays.hs
-  other-modules:       HEP.Data.AlphaS
+common deps
+  build-depends:       base ^>=4.12.0.0
+                     , bytestring
+                     , pipes
+  default-language:    Haskell2010
+  ghc-options:         -Wall -Wcompat -O2 -funbox-strict-fields
+
+library h2decays-internal
+  import:              deps
+  exposed-modules:     HEP.Data.AlphaS
                        HEP.Data.Constants
                        HEP.Data.Kinematics
                        HEP.Data.Quark
@@ -31,20 +38,21 @@ executable h2decays
                        HEP.Data.THDM.DecayWidth.H2
                        HEP.Data.THDM.DecayWidth.Hp
                        HEP.Data.THDM.Model
-  build-depends:       base ^>=4.12.0.0
-                     , blaze-builder
-                     , bytestring
-                     , double-conversion
+  build-depends:       double-conversion
                      , hmatrix-gsl
-                     , optparse-generic
-                     , pipes
-                     , pipes-bytestring
-                     , vector
-  hs-source-dirs:      src
-  default-language:    Haskell2010
-  ghc-options:         -Wall -Wcompat -O2 -funbox-strict-fields
+  hs-source-dirs:      lib
 
   cxx-sources:         csrc/alphas.cc
   include-dirs:        csrc
   cxx-options:         -g -O2 -m64 -Wall -Wextra -pedantic -fPIC
   extra-libraries:     gsl, gslcblas, LHAPDF, stdc++
+
+executable h2decays
+  import:              deps
+  main-is:             h2decays.hs
+  build-depends:       blaze-builder
+                     , optparse-generic
+                     , pipes-bytestring
+                     , vector
+                     , h2decays-internal
+  hs-source-dirs:      src
