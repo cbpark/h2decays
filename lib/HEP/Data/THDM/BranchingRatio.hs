@@ -5,7 +5,7 @@ module HEP.Data.THDM.BranchingRatio (getBRH2, getBRHp) where
 
 import HEP.Data.AlphaS                   (AlphaS)
 import HEP.Data.THDM.DecayWidth
-import HEP.Data.THDM.Model               (InputParam, renderInputParam)
+import HEP.Data.THDM.Model
 
 import Data.ByteString.Builder
 import Data.Double.Conversion.ByteString (toExponential, toFixed)
@@ -37,7 +37,7 @@ getBRH2 as = forever $ do
     fmap (renderBRH2 inp) (brH2 as inp) >>= yield
 
 renderBRH2 :: InputParam -> Maybe BRH2 -> Builder
-renderBRH2 inp brh2 = renderInputParam inp <> space <> renderBRH2' brh2
+renderBRH2 inp brh2 = renderInputParamH2 inp <> space <> renderBRH2' brh2
   where
     renderBRH2' :: Maybe BRH2 -> Builder
     renderBRH2' Nothing          =
@@ -115,7 +115,7 @@ getBRHp as = forever $ do
     fmap (renderBRHp inp) (brHp as inp) >>= yield
 
 renderBRHp :: InputParam -> Maybe BRHp -> Builder
-renderBRHp inp brhp = renderInputParam inp <> space <> renderBRHp' brhp
+renderBRHp inp brhp = renderInputParamHp inp <> space <> renderBRHp' brhp
   where
     renderBRHp' :: Maybe BRHp -> Builder
     renderBRHp' Nothing          =
@@ -133,13 +133,13 @@ renderBRHp inp brhp = renderInputParam inp <> space <> renderBRHp' brhp
 
 brHp :: MonadIO m => AlphaS -> InputParam -> m (Maybe BRHp)
 brHp as inp = do
-    gamHpTB    <- hpTB as inp
-    gamHpCS    <- hpCS as inp
+    gamHpTB    <- hpTB    as inp
+    gamHpCS    <- hpCS    as inp
     gamHpTauNu <- hpTauNu as inp
-    gamHpMuNu  <- hpMuNu as inp
-    gamHpWh    <- hpWh as inp
+    gamHpMuNu  <- hpMuNu  as inp
+    gamHpWh    <- hpWh    as inp
 
-    let totalWidth = sum [ gamHpTB, gamHpCS, gamHpTauNu, gamHpMuNu, gamHpWh ]
+    let totalWidth = sum [gamHpTB, gamHpCS, gamHpTauNu, gamHpMuNu, gamHpWh]
     return $ if totalWidth <= 0
              then Nothing
              else Just $ BRHp { _totalWidth = totalWidth

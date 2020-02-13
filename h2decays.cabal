@@ -56,3 +56,13 @@ executable h2decays
                      , vector
                      , h2decays-internal
   hs-source-dirs:      src
+
+executable hpdecays
+  import:              deps
+  main-is:             hpdecays.hs
+  build-depends:       blaze-builder
+                     , optparse-generic
+                     , pipes-bytestring
+                     , vector
+                     , h2decays-internal
+  hs-source-dirs:      src
