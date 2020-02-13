@@ -43,7 +43,7 @@ hpTB as InputParam {..} = do
 -- | H^+ --> c sbar
 hpCS :: MonadIO m => DecayWidth m
 hpCS as InputParam {..} = do
-    let m = getMass _mH
+    let m = getMass _mHp
     (_, _, mcMS) <- mMSbarHeavy as m
 
     let tanb = tanBeta _angs
