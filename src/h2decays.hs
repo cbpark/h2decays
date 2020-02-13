@@ -7,24 +7,20 @@
 
 module Main where
 
-import           HEP.Data.AlphaS          (initAlphaS)
+import           HEP.Data.AlphaS       (initAlphaS)
 import           HEP.Data.Kinematics
 import           HEP.Data.THDM
-import           HEP.Data.Util            (mkAngles)
+import           HEP.Data.Util         (mkAngles)
 
-import           Blaze.ByteString.Builder (toByteString)
--- import           Data.ByteString.Builder  (hPutBuilder)
-import           Data.ByteString.Char8    (ByteString, hPutStrLn, pack)
-import qualified Data.Vector              as V
+import           Data.ByteString.Char8 (ByteString, hPutStrLn, pack)
+import qualified Data.Vector           as V
 import           Options.Generic
-import           Pipes                    (each, runEffect, (>->))
-import qualified Pipes.ByteString         as PB
-import qualified Pipes.Prelude            as P
+import           Pipes                 (each, runEffect, (>->))
 
-import           Control.Monad            (when)
-import           Data.Maybe               (fromMaybe)
-import           System.Exit              (die)
-import           System.IO                (IOMode (..), withFile)
+import           Control.Monad         (when)
+import           Data.Maybe            (fromMaybe)
+import           System.Exit           (die)
+import           System.IO             (IOMode (..), withFile)
 
 main :: IO ()
 main = do
@@ -61,8 +57,7 @@ main = do
     let outfile = fromMaybe "output_h2.dat" (output input)
     withFile outfile WriteMode $ \h -> do
         hPutStrLn h header
-        runEffect $
-            each inps >-> getBRH2 as >-> P.map toByteString >-> PB.toHandle h
+        runEffect $ each inps >-> getBRH2 as >-> printBR h
 
     putStrLn $ "-- " ++ outfile ++ " generated."
 

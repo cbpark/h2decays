@@ -1,18 +1,22 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE RecordWildCards       #-}
 
-module HEP.Data.THDM.BranchingRatio (getBRH2, getBRHp) where
+module HEP.Data.THDM.BranchingRatio (getBRH2, getBRHp, printBR) where
 
-import HEP.Data.AlphaS                   (AlphaS)
-import HEP.Data.THDM.DecayWidth
-import HEP.Data.THDM.Model
+import           HEP.Data.AlphaS                   (AlphaS)
+import           HEP.Data.THDM.DecayWidth
+import           HEP.Data.THDM.Model
 
-import Data.ByteString.Builder
-import Data.Double.Conversion.ByteString (toExponential, toFixed)
-import Pipes                             (Pipe, await, yield)
+import           Blaze.ByteString.Builder          (toByteString)
+import           Data.ByteString.Builder
+import           Data.Double.Conversion.ByteString (toExponential, toFixed)
+import           Pipes
+import           Pipes.ByteString                  (toHandle)
+import qualified Pipes.Prelude                     as P
 
-import Control.Monad                     (forever)
-import Control.Monad.IO.Class            (MonadIO)
+import           Control.Monad                     (forever)
+import           Control.Monad.IO.Class            (MonadIO)
+import           System.IO                         (Handle)
 
 data BRH2 = BRH2 { _totalWidth :: Double
                  , _h2TT       :: Double
@@ -158,3 +162,6 @@ space = stringUtf8 " "
 
 endLine :: Builder
 endLine = charUtf8 '\n'
+
+printBR :: MonadIO m => Handle -> Consumer Builder m ()
+printBR h = P.map toByteString >-> toHandle h

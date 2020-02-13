@@ -38,8 +38,10 @@ library h2decays-internal
                        HEP.Data.THDM.DecayWidth.H2
                        HEP.Data.THDM.DecayWidth.Hp
                        HEP.Data.THDM.Model
-  build-depends:       double-conversion
+  build-depends:       blaze-builder
+                     , double-conversion
                      , hmatrix-gsl
+                     , pipes-bytestring
   hs-source-dirs:      lib
 
   cxx-sources:         csrc/alphas.cc
@@ -47,22 +49,17 @@ library h2decays-internal
   cxx-options:         -g -O2 -m64 -Wall -Wextra -pedantic -fPIC
   extra-libraries:     gsl, gslcblas, LHAPDF, stdc++
 
-executable h2decays
+common exec
   import:              deps
-  main-is:             h2decays.hs
-  build-depends:       blaze-builder
-                     , optparse-generic
-                     , pipes-bytestring
+  build-depends:       optparse-generic
                      , vector
                      , h2decays-internal
   hs-source-dirs:      src
 
+executable h2decays
+  import:              exec
+  main-is:             h2decays.hs
+
 executable hpdecays
-  import:              deps
+  import:              exec
   main-is:             hpdecays.hs
-  build-depends:       blaze-builder
-                     , optparse-generic
-                     , pipes-bytestring
-                     , vector
-                     , h2decays-internal
-  hs-source-dirs:      src
