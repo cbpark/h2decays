@@ -2,7 +2,21 @@
 {-# LANGUAGE MultiWayIf      #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module HEP.Data.THDM.DecayWidth.H2 where
+module HEP.Data.THDM.DecayWidth.H2
+    (
+      h2TT
+    , h2BB
+    , h2CC
+    , h2TauTau
+    , h2MuMu
+    , h2WW
+    , h2ZZ
+    , h2GaGa
+    , h2GG
+    , h2hh
+    , h2HpHm
+    , h2HpWm
+    ) where
 
 import HEP.Data.AlphaS        (alphasQ)
 import HEP.Data.Constants

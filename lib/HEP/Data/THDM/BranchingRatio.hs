@@ -66,18 +66,18 @@ renderBRH2 inp brh2 = renderInputParamH2 inp <> space <> renderBRH2' brh2
 
 brH2 :: MonadIO m => AlphaS -> InputParam -> m (Maybe BRH2)
 brH2 as inp = do
-    gamH2TT       <- h2TT       as inp
-    gamH2BB       <- h2BB       as inp
-    gamH2CC       <- h2CC       as inp
-    gamH2TauTau   <- h2TauTau   as inp
-    gamH2MuMu     <- h2MuMu     as inp
-    gamH2WW       <- h2WW       as inp
-    gamH2ZZ       <- h2ZZ       as inp
-    gamH2GaGa     <- h2GaGa     as inp
-    gamH2GG       <- h2GG       as inp
-    gamH2hh       <- h2hh       as inp
-    gamH2HpHm     <- h2HpHm     as inp
-    gamH2HpWm     <- h2HpWm     as inp
+    gamH2TT       <- h2TT     as inp
+    gamH2BB       <- h2BB     as inp
+    gamH2CC       <- h2CC     as inp
+    gamH2TauTau   <- h2TauTau as inp
+    gamH2MuMu     <- h2MuMu   as inp
+    gamH2WW       <- h2WW     as inp
+    gamH2ZZ       <- h2ZZ     as inp
+    gamH2GaGa     <- h2GaGa   as inp
+    gamH2GG       <- h2GG     as inp
+    gamH2hh       <- h2hh     as inp
+    gamH2HpHm     <- h2HpHm   as inp
+    gamH2HpWm     <- h2HpWm   as inp
 
     let gamH2HpmW  = 2 * gamH2HpWm  -- BR(H --> H+ W-) + BR(H --> H- W+)
         totalWidth = sum [ gamH2TT, gamH2BB, gamH2CC , gamH2TauTau, gamH2MuMu

@@ -1,6 +1,13 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module HEP.Data.THDM.DecayWidth.Hp where
+module HEP.Data.THDM.DecayWidth.Hp
+    (
+      hpTB
+    , hpCS
+    , hpTauNu
+    , hpMuNu
+    , hpWh
+    ) where
 
 import HEP.Data.Constants
 import HEP.Data.Kinematics    (Mass (..), massRatio, massSq)
