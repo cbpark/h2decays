@@ -8,9 +8,9 @@
 module Main where
 
 import           HEP.Data.AlphaS       (initAlphaS)
-import           HEP.Data.Kinematics
+import           HEP.Data.Kinematics   (Mass (..))
 import           HEP.Data.THDM
-import           HEP.Data.Util         (mkAngles)
+import           HEP.Data.Util         (mkAngles, mkPoints)
 
 import           Data.ByteString.Char8 (ByteString, hPutStrLn, pack)
 import qualified Data.Vector           as V
@@ -32,22 +32,20 @@ main = do
                  | otherwise  = UnknownType
     when (mdtypVal == UnknownType) $ die "The type must be either 1 or 2."
 
-    let (mHpVal1, mHpVal2) = (,) <$> minimum <*> maximum $ mHp input
-        npoints = floor $ (mHpVal2 - mHpVal1) / stepsize + 1
-        mHpVals = V.generate npoints (\i -> mHpVal1 + fromIntegral i * stepsize)
-        tanbVal  = tanb input
-        cosbaVal = cosba input
+    let step = fromMaybe 0.5 (stepsize input)
+        (mHpVals, _) = mkPoints step (mHp input)
+        (tanbVal, cosbaVal) = (,) <$> tanb <*> cosba $ input
 
     putStrLn $ "-- tan(beta) = " ++ show tanbVal
         ++ ", cos(beta - alpha) = " ++ show cosbaVal
 
     as <- initAlphaS
     let inps = V.map (\mHpVal -> InputParam
-                                 { _mdtyp  = mdtypVal
-                                 , _mH     = Mass 0
-                                 , _mA     = Mass 0
-                                 , _mHp    = Mass mHpVal
-                                 , _angs   = mkAngles tanbVal cosbaVal
+                                 { _mdtyp = mdtypVal
+                                 , _mH    = Mass 0
+                                 , _mA    = Mass 0
+                                 , _mHp   = Mass mHpVal
+                                 , _angs  = mkAngles tanbVal cosbaVal
                                  }) mHpVals
 
     putStrLn "-- Calculating the branching ratios of the charged Higgs boson..."
@@ -60,11 +58,12 @@ main = do
     putStrLn $ "-- " ++ outfile ++ " generated."
 
 data InputArgs w = InputArgs
-    { mtype  :: w ::: Maybe Int    <?> "model type (either 1 or 2)"
-    , mHp    :: w ::: [Double]     <?> "charged Higgs mass"
-    , tanb   :: w ::: Double       <?> "tan(beta)"
-    , cosba  :: w ::: Double       <?> "cos(beta-alpha)"
-    , output :: w ::: Maybe String <?> "the name of the output file"
+    { mtype    :: w ::: Maybe Int    <?> "model type (either 1 or 2)"
+    , mHp      :: w ::: [Double]     <?> "charged Higgs mass"
+    , tanb     :: w ::: Double       <?> "tan(beta)"
+    , cosba    :: w ::: Double       <?> "cos(beta-alpha)"
+    , stepsize :: w ::: Maybe Double <?> "step size (default: 0.5)"
+    , output   :: w ::: Maybe String <?> "the name of the output file"
     } deriving Generic
 
 instance ParseRecord (InputArgs Wrapped)
@@ -77,6 +76,3 @@ header = pack $ "# " <>
           [ "type", "mHp", "tanb", "cosba", "width"
           , "tb", "cs", "taunu", "munu", "wh"
           ])
-
-stepsize :: Double
-stepsize = 0.5
