@@ -167,11 +167,13 @@ h2VV :: MonadIO m => EWBosons -> DecayWidth m
 h2VV v _ InputParam {..} = do
     let (deltaV, x) | v == Wboson = (2, mW `massRatio` _mH)
                     | otherwise   = (1, mZ `massRatio` _mH)
-        x2 = x * x
-        cosba = cosBetaAlpha _angs
-        m = getMass _mH
-    return $ deltaV * m ** 3 * cosba ** 2 / (64 * pi * vEW2)
-             * sqrt (1 - 4 * x2) * (1 - 4 * x2 + 12 * x2 * x2)
+    return $ if 2 * x > 1
+             then 0
+             else let x2 = x * x
+                      cosba = cosBetaAlpha _angs
+                      m = getMass _mH
+                  in deltaV * m ** 3 * cosba ** 2 / (64 * pi * vEW2)
+                     * sqrt (1 - 4 * x2) * (1 - 4 * x2 + 12 * x2 * x2)
 
 h2WW, h2ZZ :: MonadIO m => DecayWidth m
 -- | H --> W W
