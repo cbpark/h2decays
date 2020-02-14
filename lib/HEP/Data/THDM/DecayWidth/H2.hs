@@ -95,7 +95,9 @@ h2TT as inp@InputParam {..} = do
              return $ widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
        | otherwise -> return 0
     -}
-    h2TT2body mt0 gH as inp
+    if m > 2 * getMass mt0
+        then h2TT2body mt0 gH as inp
+        else return 0
 
 h2TT2body :: MonadIO m
           => Mass    -- ^ top pole mass
