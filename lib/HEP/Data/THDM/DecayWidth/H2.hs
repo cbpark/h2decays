@@ -30,10 +30,7 @@ import Data.Complex           (Complex (..), magnitude)
 
 h2LL :: MonadIO m => Mass -> DecayWidth m
 h2LL ml _ InputParam {..} = do
-    let gH | _mdtyp == TypeI  = gHTauTauI  _angs
-           | _mdtyp == TypeII = gHTauTauII _angs
-           | otherwise        = 0
-
+    let gH = gHLL _mdtyp ml _angs
         beta = betaF _mH ml
     return $ getMass _mH * gH * gH * beta ** 3 / (32 * pi)
 
@@ -49,7 +46,7 @@ h2BB = h2QQ Bottom gHDD
 -- | H --> c cbar
 h2CC = h2QQ Charm  gHUU
 
-h2QQ :: MonadIO m => MassiveQuark -> HQQCoupling -> DecayWidth m
+h2QQ :: MonadIO m => MassiveQuark -> HffCoupling -> DecayWidth m
 h2QQ q coup as InputParam {..} = do
     let m = getMass _mH
     mqMS <- mMSbar as m q

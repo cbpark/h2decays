@@ -2,16 +2,15 @@ module HEP.Data.THDM.Coupling
     (
       gHUU
     , gHDD
-    , gHTauTauI
-    , gHTauTauII
+    , gHLL
     , gHhh
     , gHHpHm
     , gHpUD
     , THDMType (..)
-    , HQQCoupling
+    , HffCoupling
     ) where
 
-import HEP.Data.Constants  (gW, mW, mh2, mtau, sqrt2)
+import HEP.Data.Constants  (gW, mW, mh2, sqrt2)
 import HEP.Data.Kinematics (Mass (..), massRatio, massSq)
 import HEP.Data.Util
 
@@ -25,9 +24,9 @@ gHff cfunc angs mf = let sinba = sinBetaAlpha angs
                          coeff = cfunc sinba
                      in gW * (mf `massRatio` mW) * coeff
 
-type HQQCoupling = THDMType -> Mass -> Angles -> Double
+type HffCoupling = THDMType -> Mass -> Angles -> Double
 
-gHUU :: HQQCoupling
+gHUU :: HffCoupling
 gHUU typ mU angs = gHff cfunc angs mU
   where
     tanb = tanBeta angs
@@ -35,7 +34,7 @@ gHUU typ mU angs = gHff cfunc angs mU
     cfunc sinba | typ == TypeI || typ == TypeII = cosba - sinba / tanb
                 | otherwise                     = 0
 
-gHDD :: HQQCoupling
+gHDD :: HffCoupling
 gHDD typ mD angs = gHff cfunc angs mD
   where
     tanb = tanBeta angs
@@ -44,9 +43,8 @@ gHDD typ mD angs = gHff cfunc angs mD
                 | typ == TypeII = cosba + sinba * tanb
                 | otherwise     = 0
 
-gHTauTauI, gHTauTauII :: Angles -> Double
-gHTauTauI  = gHDD TypeI mtau
-gHTauTauII = gHDD TypeII mtau
+gHLL :: HffCoupling
+gHLL = gHDD
 
 gHhh :: Mass  -- ^ m_H
      -> Mass  -- ^ m_A
