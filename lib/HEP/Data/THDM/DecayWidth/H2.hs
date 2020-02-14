@@ -79,6 +79,7 @@ h2TT as inp@InputParam {..} = do
     let gH = gHUU _mdtyp mtMS _angs
 
         mt0 = poleMass Top
+    {-
         mb0 = poleMass Bottom
         [mt', mb', mw'] = fmap getMass [mt0, mb0, mW]
         mphip = 2 * mt' + 1.5
@@ -93,6 +94,8 @@ h2TT as inp@InputParam {..} = do
              widthM <- h2TT3body mt0 mb0 gH inpM
              return $ widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
        | otherwise -> return 0
+    -}
+    h2TT2body mt0 gH as inp
 
 h2TT2body :: MonadIO m
           => Mass    -- ^ top pole mass
@@ -128,6 +131,7 @@ h2TT2body mt0 gH as InputParam {..} = do
     return $ 3 * m * gH * gH * betaPole ** 3 / (32 * pi)
              * (1 + 4.0 / 3 * x * deltaH)
 
+{-
 h2TT3body :: MonadIO m
           => Mass    -- ^ top pole mass
           -> Mass    -- ^ bottom pole mass
@@ -160,6 +164,7 @@ h2TT3body mt0 mb0 gH InputParam {..} = do
                        (2 * sqrt kb, 1 - kt - kw + kb - sqrt (kw * kt))
                        1.0e-9 1000
     return $ 3 * gFermi * gH * gH * m ** 3 / (256 * pi3) * g
+-}
 
 data EWBosons = Wboson | Zboson deriving Eq
 
