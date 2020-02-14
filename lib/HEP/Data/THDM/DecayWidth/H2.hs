@@ -272,8 +272,8 @@ h2HpHm as inp@InputParam {..} = do
     let m  = getMass _mH
         mp = getMass _mHp
 
-        mphip = 2 * mp + 4.0
-        mphim = 2 * mp - 1.0
+        mphip = 2 * mp + 0.5
+        mphim = 2 * mp - 0.5
 
     if | m >= mphip              -> h2HpHm2body as inp
        | m >  mp    && m < mphim -> h2HpHm3body as inp
