@@ -36,6 +36,7 @@ main = do
         (mHVals, npoints) = mkPoints step (mH input)
         mSVals = fromMaybe mHVals (V.replicateM npoints (mS input))
         mHpVal = mHp input
+        mAVal = fromMaybe mHpVal (mA input)
         (tanbVal, cosbaVal) = (,) <$> tanb <*> cosba $ input
 
     putStrLn $ "-- m_{H+} = " ++ show mHpVal ++ ", tan(beta) = " ++ show tanbVal
@@ -46,6 +47,7 @@ main = do
                                           { _mdtyp = mdtypVal
                                           , _mS    = Mass mSVal
                                           , _mH    = Mass mHVal
+                                          , _mA    = Mass mAVal
                                           , _mHp   = Mass mHpVal
                                           , _angs  = mkAngles tanbVal cosbaVal
                                           }) mHVals mSVals
@@ -62,6 +64,7 @@ main = do
 data InputArgs w = InputArgs
     { mtype    :: w ::: Maybe Int    <?> "model type (either 1 or 2)"
     , mH       :: w ::: [Double]     <?> "heavy Higgs mass"
+    , mA       :: w ::: Maybe Double <?> "CP-odd Higgs mass"
     , mHp      :: w ::: Double       <?> "charged Higgs mass"
     , mS       :: w ::: Maybe Double <?> "heavy mass scale (m_A if MSSM)"
     , tanb     :: w ::: Double       <?> "tan(beta)"
@@ -77,7 +80,7 @@ header :: ByteString
 header = pack $ "# " <>
          foldl1 (\v1 v2 -> v1 <> ", " <> v2)
          (zipWith (\n v -> "(" <> show n <> ") " <> v) ([1..] :: [Int])
-          [ "type", "mS", "mH", "mHp", "tanb", "cosba"
+          [ "type", "mS", "mH", "mA", "mHp", "tanb", "cosba"
           , "width"
           , "tt", "bb", "cc", "tautau", "mumu"
           , "ww", "zz", "gammagamma", "gg"

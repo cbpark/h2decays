@@ -397,14 +397,20 @@ h2HpWm _ inp@InputParam {..} = do
                  in widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
            | otherwise -> 0
 
-h2HW2body :: InputParam -> Double
-h2HW2body InputParam {..} =
+h2PhiV2body :: Mass  -- ^ mass of scalar boson
+            -> Mass  -- ^ mass of vector boson
+            -> InputParam
+            -> Double
+h2PhiV2body mPhi mV InputParam {..} =
     let sinba = sinBetaAlpha _angs
         m = getMass _mH
-        y = _mHp `massRatio` _mH
-        z = mW `massRatio` _mH
+        y = mPhi `massRatio` _mH
+        z = mV `massRatio` _mH
         lam = lambdaF 1 (y * y) (z * z)
     in gW2 * sinba ** 2 * m ** 3 / (64 * pi * mW2) * lam ** 1.5
+
+h2HW2body :: InputParam -> Double
+h2HW2body inp@InputParam {..} = h2PhiV2body _mHp mW inp
 
 h2HW3body :: InputParam -> Double
 h2HW3body InputParam {..} =
