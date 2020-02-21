@@ -15,6 +15,7 @@ module HEP.Data.THDM.DecayWidth.H2
     , h2hh
     , h2HpHm
     , h2HpWm
+    , h2AZ
     ) where
 
 import HEP.Data.AlphaS        (alphasQ)
@@ -397,6 +398,9 @@ h2HpWm _ inp@InputParam {..} = do
                  in widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
            | otherwise -> 0
 
+h2AZ :: MonadIO m => DecayWidth m
+h2AZ = undefined
+
 h2PhiV2body :: Mass  -- ^ mass of scalar boson
             -> Mass  -- ^ mass of vector boson
             -> InputParam
@@ -409,21 +413,39 @@ h2PhiV2body mPhi mV InputParam {..} =
         lam = lambdaF 1 (y * y) (z * z)
     in gW2 * sinba ** 2 * m ** 3 / (64 * pi * mW2) * lam ** 1.5
 
-h2HW2body :: InputParam -> Double
+h2HW2body, h2AZ2body :: InputParam -> Double
 h2HW2body inp@InputParam {..} = h2PhiV2body _mHp mW inp
+h2AZ2body inp@InputParam {..} = h2PhiV2body _mA  mZ inp
 
-h2HW3body :: InputParam -> Double
-h2HW3body InputParam {..} =
+h2PhiV3body :: Mass    -- ^ mass of scalar boson
+            -> Mass    -- ^ mass of vector boson
+            -> Double
+            -> InputParam
+            -> Double
+h2PhiV3body mPhi mV deltaV InputParam {..} =
     let m = getMass _mH
         m2 = m * m
-        mp = getMass _mHp
+        mp = getMass mPhi
 
-        c = 9 * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
+        c = 3 * deltaV * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
         k1 = mp * mp / m2
-        k2 = mW2 / m2
+        k2 = massSq mV / m2
         g = gFunc k1 k2
         sinba = sinBetaAlpha _angs
     in if m < mp then 0 else c * g * sinba ** 2
+
+h2HW3body :: InputParam -> Double
+h2HW3body inp@InputParam {..} = h2PhiV3body _mHp mW 3.0 inp
+    -- let m = getMass _mH
+    --     m2 = m * m
+    --     mp = getMass _mHp
+
+    --     c = 9 * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
+    --     k1 = mp * mp / m2
+    --     k2 = mW2 / m2
+    --     g = gFunc k1 k2
+    --     sinba = sinBetaAlpha _angs
+    -- in if m < mp then 0 else c * g * sinba ** 2
 
 gFunc :: Double -> Double -> Double
 gFunc k1 k2 =
