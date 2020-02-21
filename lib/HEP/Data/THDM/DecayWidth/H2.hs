@@ -375,34 +375,40 @@ h2HpWh _ InputParam {..} = do
                                1.0e-9 1000
             return $ gH * gH * gV * gV * m / (256 * pi3 * mW2) * g
 
--- | H --> H^+ W^-
-h2HpWm :: MonadIO m => DecayWidth m
-h2HpWm _ inp@InputParam {..} = do
+h2PhiV :: Mass                    -- ^ the mass of scalar boson
+       -> Mass                    -- ^ the mass of vector boson
+       -> (InputParam -> Double)  -- ^ for 2-body decay
+       -> (InputParam -> Double)  -- ^ for 3-body decay
+       -> InputParam
+       -> Double
+h2PhiV mPhi mV phiV2body phiV3body inp@InputParam {..} =
     let m  = getMass _mH
-        mp = getMass _mHp
-        mw = getMass mW
+        mp = getMass mPhi
+        mv = getMass mV
 
-        mphip = mp + mw + 4.0
-        mphim = mp + mw - 1.0
+        mphip = mp + mv + 4.0
+        mphim = mp + mv - 1.0
 
     -- the trick taken from H-COUP.
     -- see SM_Hdecay.F90 of https://arxiv.org/abs/1910.12769
-    return $
-        if | m >= mphip              -> h2HW2body inp
-           | m >  mp    && m < mphim -> h2HW3body inp
-           | m >= mphim && m < mphip ->
-                 let inpP = inp { _mH = Mass mphip }
-                     inpM = inp { _mH = Mass mphim }
-                     widthP = h2HW2body inpP
-                     widthM = h2HW3body inpM
-                 in widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
-           | otherwise -> 0
+    in if | m >= mphip              -> phiV2body inp
+          | m >  mp    && m < mphim -> phiV3body inp
+          | m >= mphim && m < mphip ->
+                let inpP = inp { _mH = Mass mphip }
+                    inpM = inp { _mH = Mass mphim }
+                    widthP = phiV2body inpP
+                    widthM = phiV3body inpM
+                in widthP - widthM / (mphip - mphim) * (m - mphim) + widthM
+          | otherwise -> 0
 
-h2AZ :: MonadIO m => DecayWidth m
-h2AZ = undefined
+h2HpWm, h2AZ :: MonadIO m => DecayWidth m
+-- | H --> H^+ W^-
+h2HpWm _ inp@InputParam {..} = return $ h2PhiV _mHp mW h2HW2body h2HW3body inp
+-- | H --> A Z
+h2AZ   _ inp@InputParam {..} = return $ h2PhiV _mA  mZ h2AZ2body h2AZ3body inp
 
-h2PhiV2body :: Mass  -- ^ mass of scalar boson
-            -> Mass  -- ^ mass of vector boson
+h2PhiV2body :: Mass  -- ^ the mass of scalar boson
+            -> Mass  -- ^ the mass of vector boson
             -> InputParam
             -> Double
 h2PhiV2body mPhi mV InputParam {..} =
@@ -417,35 +423,24 @@ h2HW2body, h2AZ2body :: InputParam -> Double
 h2HW2body inp@InputParam {..} = h2PhiV2body _mHp mW inp
 h2AZ2body inp@InputParam {..} = h2PhiV2body _mA  mZ inp
 
-h2PhiV3body :: Mass    -- ^ mass of scalar boson
-            -> Mass    -- ^ mass of vector boson
-            -> Double
+h2PhiV3body :: Double
+            -> Mass  -- ^ the mass of scalar boson
+            -> Mass  -- ^ the mass of vector boson
             -> InputParam
             -> Double
-h2PhiV3body mPhi mV deltaV InputParam {..} =
+h2PhiV3body deltaV mPhi mV InputParam {..} =
     let m = getMass _mH
         m2 = m * m
         mp = getMass mPhi
+        mv = getMass mV
+        mv2 = mv * mv
 
-        c = 3 * deltaV * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
+        c = 3 * deltaV * gFermi * gFermi * mv2 ** 2 * m / (16 * pi3)
         k1 = mp * mp / m2
-        k2 = massSq mV / m2
+        k2 = mv2 / m2
         g = gFunc k1 k2
         sinba = sinBetaAlpha _angs
     in if m < mp then 0 else c * g * sinba ** 2
-
-h2HW3body :: InputParam -> Double
-h2HW3body inp@InputParam {..} = h2PhiV3body _mHp mW 3.0 inp
-    -- let m = getMass _mH
-    --     m2 = m * m
-    --     mp = getMass _mHp
-
-    --     c = 9 * gFermi * gFermi * mW2 ** 2 * m / (16 * pi3)
-    --     k1 = mp * mp / m2
-    --     k2 = mW2 / m2
-    --     g = gFunc k1 k2
-    --     sinba = sinBetaAlpha _angs
-    -- in if m < mp then 0 else c * g * sinba ** 2
 
 gFunc :: Double -> Double -> Double
 gFunc k1 k2 =
@@ -459,6 +454,14 @@ gFunc k1 k2 =
                 term2 = (lam12 - 2 * k1) * log k1
                 term3 = (1 - k1) / 3 * (5 * (1 + k1) - 4 * k2 + 2 * lam12 / k2)
             in 0.25 * (term1 + term2 + term3)
+
+h2HW3body, h2AZ3body :: InputParam -> Double
+h2HW3body inp@InputParam {..} = h2PhiV3body 3.0 _mHp mW inp
+h2AZ3body inp@InputParam {..} =
+    let cW = mW `massRatio` mZ
+        sW2 = 1 - cW * cW
+        deltaZ = 6 * (7.0 / 12 - 10.0 * sW2 / 9 + 40.0 * sW2 * sW2 / 27)
+    in h2PhiV3body deltaZ _mA mZ inp
 
 x1minmax :: Double -> Double -> Double -> (Double -> Double, Double -> Double)
 x1minmax kphi k1 k2 =
