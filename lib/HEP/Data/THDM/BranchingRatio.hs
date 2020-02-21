@@ -31,6 +31,7 @@ data BRH2 = BRH2 { _totalWidth :: Double
                  , _h2hh       :: Double
                  , _h2HpHm     :: Double
                  , _h2HpmW     :: Double
+                 , _h2AZ       :: Double
                  }
 
 -- getBRH2 :: MonadIO m => AlphaS -> InputParam -> m Builder
@@ -46,7 +47,7 @@ renderBRH2 inp brh2 = renderInputParamH2 inp <> space <> renderBRH2' brh2
     renderBRH2' :: Maybe BRH2 -> Builder
     renderBRH2' Nothing          =
         (byteString . toFixed 4) 0
-        <> foldr1 (<>) (replicate 12 (space <> convDbl 0))
+        <> foldr1 (<>) (replicate 13 (space <> convDbl 0))
         <> endLine
     renderBRH2' (Just BRH2 {..}) =
         (byteString . toFixed 4) _totalWidth
@@ -62,6 +63,7 @@ renderBRH2 inp brh2 = renderInputParamH2 inp <> space <> renderBRH2' brh2
         <> space <> convDbl _h2hh
         <> space <> convDbl _h2HpHm
         <> space <> convDbl _h2HpmW
+        <> space <> convDbl _h2AZ
         <> endLine
 
 brH2 :: MonadIO m => AlphaS -> InputParam -> m (Maybe BRH2)
@@ -78,12 +80,13 @@ brH2 as inp = do
     gamH2hh       <- h2hh     as inp
     gamH2HpHm     <- h2HpHm   as inp
     gamH2HpWm     <- h2HpWm   as inp
+    gamH2AZ       <- h2AZ     as inp
 
     let gamH2HpmW  = 2 * gamH2HpWm  -- BR(H --> H+ W-) + BR(H --> H- W+)
         totalWidth = sum [ gamH2TT, gamH2BB, gamH2CC , gamH2TauTau, gamH2MuMu
                          , gamH2WW, gamH2ZZ, gamH2GaGa, gamH2GG
                          , gamH2hh, gamH2HpHm
-                         , gamH2HpmW
+                         , gamH2HpmW, gamH2AZ
                          ]
 
     return $ if totalWidth <= 0  -- what happened?
@@ -101,6 +104,7 @@ brH2 as inp = do
                               , _h2hh       = gamH2hh     / totalWidth
                               , _h2HpHm     = gamH2HpHm   / totalWidth
                               , _h2HpmW     = gamH2HpmW   / totalWidth
+                              , _h2AZ       = gamH2AZ     / totalWidth
                               }
 
 data BRHp = BRHp { _totalWidth :: Double

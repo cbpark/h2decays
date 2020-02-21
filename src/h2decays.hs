@@ -84,5 +84,5 @@ header = pack $ "# " <>
           , "width"
           , "tt", "bb", "cc", "tautau", "mumu"
           , "ww", "zz", "gammagamma", "gg"
-          , "hh", "HpHm", "HpmW"
+          , "hh", "HpHm", "HpmW", "AZ"
           ])
