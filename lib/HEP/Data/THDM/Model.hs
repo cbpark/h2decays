@@ -17,8 +17,8 @@ import Data.ByteString.Builder
 import Data.Double.Conversion.ByteString (toFixed)
 
 data InputParam = InputParam { _mdtyp :: THDMType
+                             , _mS    :: Mass
                              , _mH    :: Mass
-                             , _mA    :: Mass
                              , _mHp   :: Mass
                              , _angs  :: Angles
                              } deriving Show
@@ -26,8 +26,8 @@ data InputParam = InputParam { _mdtyp :: THDMType
 renderInputParamH2 :: InputParam -> Builder
 renderInputParamH2 InputParam {..} =
     renderTHDMType _mdtyp
+    <> space <> renderMass _mS
     <> space <> renderMass _mH
-    <> space <> renderMass _mA
     <> space <> renderMass _mHp
     <> space <> renderAngles _angs
 

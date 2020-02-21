@@ -42,8 +42,8 @@ main = do
     as <- initAlphaS
     let inps = V.map (\mHpVal -> InputParam
                                  { _mdtyp = mdtypVal
+                                 , _mS    = Mass 0
                                  , _mH    = Mass 0
-                                 , _mA    = Mass 0
                                  , _mHp   = Mass mHpVal
                                  , _angs  = mkAngles tanbVal cosbaVal
                                  }) mHpVals

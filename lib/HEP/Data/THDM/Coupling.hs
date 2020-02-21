@@ -50,32 +50,32 @@ gHhh :: Mass  -- ^ m_H
      -> Mass  -- ^ m_A
      -> Angles
      -> Double
-gHhh mH mA angs =
+gHhh mH mS angs =
     let mH2  = massSq mH
-        mA2  = massSq mA
+        mS2  = massSq mS
 
         [tan2b, cosba, sinba] = ($ angs) <$>
                                 [tan2Beta, cosBetaAlpha, sinBetaAlpha]
 
         c = gW * cosba / (2 * getMass mW)
-    in c * (4 * mA2 - mH2 - 2 * mh2
-            + 2 * cosba * (sinba / tan2b - cosba) * (3 * mA2 - mH2 - 2 * mh2))
+    in c * (4 * mS2 - mH2 - 2 * mh2
+            + 2 * cosba * (sinba / tan2b - cosba) * (3 * mS2 - mH2 - 2 * mh2))
 
 gHHpHm :: Mass  -- ^ m_H
        -> Mass  -- ^ m_A
        -> Mass  -- ^ m_{H+}
        -> Angles
        -> Double
-gHHpHm mH mA mHp angs =
+gHHpHm mH mS mHp angs =
     let mH2  = massSq mH
-        mA2  = massSq mA
+        mS2  = massSq mS
         mHp2 = massSq mHp
 
         [tan2b, cosba, sinba] = ($ angs) <$>
                                 [tan2Beta, cosBetaAlpha, sinBetaAlpha]
 
         c = gW / (2 * getMass mW)
-    in c * (cosba * (mH2 + 2 * (mHp2 - mA2)) - 2 * sinba / tan2b * (mH2 - mA2))
+    in c * (cosba * (mH2 + 2 * (mHp2 - mS2)) - 2 * sinba / tan2b * (mH2 - mS2))
 
 gHpUD :: THDMType
       -> Mass  -- ^ m_U

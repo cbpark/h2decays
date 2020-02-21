@@ -34,7 +34,7 @@ main = do
 
     let step = fromMaybe 0.5 (stepsize input)
         (mHVals, npoints) = mkPoints step (mH input)
-        mAVals = fromMaybe mHVals (V.replicateM npoints (mA input))
+        mSVals = fromMaybe mHVals (V.replicateM npoints (mS input))
         mHpVal = mHp input
         (tanbVal, cosbaVal) = (,) <$> tanb <*> cosba $ input
 
@@ -42,13 +42,13 @@ main = do
         ++ ", cos(beta - alpha) = " ++ show cosbaVal
 
     as <- initAlphaS
-    let inps = V.zipWith (\mHVal mAVal -> InputParam
+    let inps = V.zipWith (\mHVal mSVal -> InputParam
                                           { _mdtyp = mdtypVal
+                                          , _mS    = Mass mSVal
                                           , _mH    = Mass mHVal
-                                          , _mA    = Mass mAVal
                                           , _mHp   = Mass mHpVal
                                           , _angs  = mkAngles tanbVal cosbaVal
-                                          }) mHVals mAVals
+                                          }) mHVals mSVals
 
     putStrLn "-- Calculating the branching ratios of the heavy Higgs boson..."
 
@@ -62,8 +62,8 @@ main = do
 data InputArgs w = InputArgs
     { mtype    :: w ::: Maybe Int    <?> "model type (either 1 or 2)"
     , mH       :: w ::: [Double]     <?> "heavy Higgs mass"
-    , mA       :: w ::: Maybe Double <?> "heavy mass scale (m_A if MSSM)"
     , mHp      :: w ::: Double       <?> "charged Higgs mass"
+    , mS       :: w ::: Maybe Double <?> "heavy mass scale (m_A if MSSM)"
     , tanb     :: w ::: Double       <?> "tan(beta)"
     , cosba    :: w ::: Double       <?> "cos(beta-alpha)"
     , stepsize :: w ::: Maybe Double <?> "step size (default: 0.5)"
@@ -77,7 +77,7 @@ header :: ByteString
 header = pack $ "# " <>
          foldl1 (\v1 v2 -> v1 <> ", " <> v2)
          (zipWith (\n v -> "(" <> show n <> ") " <> v) ([1..] :: [Int])
-          [ "type", "mH", "mA", "mHp", "tanb", "cosba"
+          [ "type", "mS", "mH", "mHp", "tanb", "cosba"
           , "width"
           , "tt", "bb", "cc", "tautau", "mumu"
           , "ww", "zz", "gammagamma", "gg"

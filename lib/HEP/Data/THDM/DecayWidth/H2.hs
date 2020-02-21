@@ -232,7 +232,7 @@ h2GaGa as InputParam {..} = do
         arg2 = (cosba *) <$> a1 (m2 / (4 * massSq mW))
 
         mHp2 = massSq _mHp
-        gHp = gHHpHm _mH _mA _mHp _angs
+        gHp = gHHpHm _mH _mS _mHp _angs
         -- H+ contributions
         arg3 = (vEW / (sqrt2 * mHp2) * gHp *) <$> a0 (m2 / (4 * mHp2))
 
@@ -264,7 +264,7 @@ h2SS beta g symF _ InputParam {..} =
 -- | H --> h h
 h2hh :: MonadIO m => DecayWidth m
 h2hh as inp@InputParam {..} =
-    h2SS (betaF _mH mh) (gHhh _mH _mA _angs) 1 as inp
+    h2SS (betaF _mH mh) (gHhh _mH _mS _angs) 1 as inp
 
 -- | H --> H^+ H^-
 h2HpHm :: MonadIO m => DecayWidth m
@@ -287,7 +287,7 @@ h2HpHm as inp@InputParam {..} = do
 
 h2HpHm2body :: MonadIO m => DecayWidth m
 h2HpHm2body as inp@InputParam {..} =
-    h2SS (betaF _mH _mHp) (gHHpHm _mH _mA _mHp _angs) 2 as inp
+    h2SS (betaF _mH _mHp) (gHHpHm _mH _mS _mHp _angs) 2 as inp
 
 h2HpHm3body :: MonadIO m => DecayWidth m
 h2HpHm3body as inp =
@@ -331,7 +331,7 @@ h2HpUD (mU, mUMS) (mD, mDMS) ncolor vCKM InputParam {..} =
     let [m, mp, mu, md] = fmap getMass [_mH, _mHp, mU, mD]
     in if m < mp + mu + md
        then 0
-       else let gH = gHHpHm _mH _mA _mHp _angs
+       else let gH = gHHpHm _mH _mS _mHp _angs
                 (gf, gf') = gHpUD _mdtyp mUMS mDMS _angs
                 gf2  = gf * gf
                 gf2' = gf' * gf'
@@ -357,7 +357,7 @@ h2HpWh _ InputParam {..} = do
     if _mH < mW + mh
         then return 0
         else do
-            let gH = gHHpHm _mH _mA _mHp _angs
+            let gH = gHHpHm _mH _mS _mHp _angs
                 gV = gW * cosBetaAlpha _angs / 2
 
                 kp = (_mHp `massRatio` _mH) ** 2
