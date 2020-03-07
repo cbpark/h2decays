@@ -15,7 +15,6 @@ import           Pipes.ByteString                  (toHandle)
 import qualified Pipes.Prelude                     as P
 
 import           Control.Monad                     (forever)
-import           Control.Monad.IO.Class            (MonadIO)
 import           System.IO                         (Handle)
 
 data BRH2 = BRH2 { _totalWidth :: Double
