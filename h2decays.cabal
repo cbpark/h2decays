@@ -25,7 +25,8 @@ common deps
   default-language:    Haskell2010
   ghc-options:         -Wall -Wcompat -O2 -funbox-strict-fields
 
-library h2decays-internal
+-- library h2decays-internal
+library
   import:              deps
   exposed-modules:     HEP.Data.AlphaS
                        HEP.Data.Kinematics
@@ -53,7 +54,8 @@ library h2decays-internal
 common exec
   import:              deps
   build-depends:       optparse-generic
-                     , h2decays-internal
+                     -- , h2decays-internal
+                     , h2decays
   hs-source-dirs:      src
 
 executable h2decays
