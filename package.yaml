@@ -1,14 +1,14 @@
-name: h2decays
-version: 0.0.0.0
-synopsis: Calculating decay widths and branching ratios of the heavy Higgs boson in the 2HDM
-author: Chan Beom Park
-maintainer: cbpark@gmail.com
-license-file: LICENSE
-github: cbpark/h2decays
-category: Physics
+name:               h2decays
+version:            "0.0.0.0"
+synopsis:           Calculating the branching ratios of heavy Higgs bosons in the 2HDM
+author:             Chan Beom Park
+maintainer:         cbpark@gmail.com
+license-file:       LICENSE
+github:             cbpark/h2decays
+category:           Physics
 extra-source-files: csrc/*
 
-ghc-options: -Wall -Wcompat -O2 -funbox-strict-fields
+ghc-options:        -Wall -Wcompat -O2 -funbox-strict-fields
 
 dependencies:
   - base >= 4.12.0.0 && < 5
