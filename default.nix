@@ -1,19 +1,24 @@
 { mkDerivation, base, blaze-builder, bytestring, double-conversion
-, gsl, hmatrix-gsl, lhapdf, optparse-generic, pipes , pipes-bytestring
-, stdenv, vector
+, gsl, hmatrix-gsl, hpack, lhapdf, optparse-generic
+, pipes, pipes-bytestring, stdenv, vector
 }:
 mkDerivation {
   pname = "h2decays";
   version = "0.0.0.0";
   src = ./.;
-  isLibrary = false;
+  isLibrary = true;
   isExecutable = true;
-  executableHaskellDepends = [
-    base blaze-builder bytestring double-conversion hmatrix-gsl
-    optparse-generic pipes pipes-bytestring vector
+  libraryHaskellDepends = [
+    base blaze-builder bytestring double-conversion hmatrix-gsl pipes
+    pipes-bytestring vector
   ];
-  executableSystemDepends = [ gsl lhapdf ];
-  homepage = "https://github.com/cbpark/h2decays";
+  librarySystemDepends = [ gsl lhapdf ];
+  libraryToolDepends = [ hpack ];
+  executableHaskellDepends = [
+    base bytestring optparse-generic pipes vector
+  ];
+  prePatch = "hpack";
+  homepage = "https://github.com/cbpark/h2decays#readme";
   description = "Calculating decay widths and branching ratios of the heavy Higgs boson in the 2HDM";
   license = stdenv.lib.licenses.gpl3;
 }

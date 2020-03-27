@@ -1,67 +1,96 @@
-cabal-version:       2.2
-name:                h2decays
-version:             0.0.0.0
-synopsis:            Calculating decay widths and branching ratios of the heavy Higgs boson in the 2HDM
--- description:
-homepage:            https://github.com/cbpark/h2decays
-bug-reports:         https://github.com/cbpark/h2decays/issues
-license:             GPL-3.0-only
-license-file:        LICENSE
-author:              Chan Beom Park
-maintainer:          cbpark@gmail.com
-copyright:           (c) 2020 Chan Beom Park
-category:            Physics
-build-type:          Simple
-extra-source-files:  README.md
-                     csrc/alphas.cc
-                     csrc/alphas.h
-tested-with:         GHC == 8.8.3, GHC == 8.6.5
+cabal-version: 2.2
 
-common deps
-  build-depends:       base >=4.12.0.0
-                     , bytestring
-                     , pipes
-                     , vector
-  default-language:    Haskell2010
-  ghc-options:         -Wall -Wcompat -O2 -funbox-strict-fields
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: e8388d8339d60f1c3a35c903e4fa73824bad4888cc1a129fc01901a4dce17984
 
--- library h2decays-internal
+name:           h2decays
+version:        0.0.0.0
+synopsis:       Calculating decay widths and branching ratios of the heavy Higgs boson in the 2HDM
+category:       Physics
+homepage:       https://github.com/cbpark/h2decays#readme
+bug-reports:    https://github.com/cbpark/h2decays/issues
+author:         Chan Beom Park
+maintainer:     cbpark@gmail.com
+license:        GPL-3.0-only
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    csrc/alphas.cc
+    csrc/alphas.h
+
+source-repository head
+  type: git
+  location: https://github.com/cbpark/h2decays
+
 library
-  import:              deps
-  exposed-modules:     HEP.Data.AlphaS
-                       HEP.Data.Kinematics
-                       HEP.Data.Util
-                       HEP.Data.THDM
-  other-modules:       HEP.Data.Constants
-                       HEP.Data.Quark
-                       HEP.Data.THDM.BranchingRatio
-                       HEP.Data.THDM.Coupling
-                       HEP.Data.THDM.DecayWidth
-                       HEP.Data.THDM.DecayWidth.H2
-                       HEP.Data.THDM.DecayWidth.Hp
-                       HEP.Data.THDM.Model
-  build-depends:       blaze-builder
-                     , double-conversion
-                     , hmatrix-gsl
-                     , pipes-bytestring
-  hs-source-dirs:      lib
-
-  cxx-sources:         csrc/alphas.cc
-  include-dirs:        csrc
-  cxx-options:         -g -O2 -m64 -Wall -Wextra -pedantic -fPIC
-  extra-libraries:     gsl, gslcblas, LHAPDF, stdc++
-
-common exec
-  import:              deps
-  build-depends:       optparse-generic
-                     -- , h2decays-internal
-                     , h2decays
-  hs-source-dirs:      src
+  exposed-modules:
+      HEP.Data.AlphaS
+      HEP.Data.Kinematics
+      HEP.Data.Util
+      HEP.Data.THDM
+  other-modules:
+      HEP.Data.Constants
+      HEP.Data.Quark
+      HEP.Data.THDM.BranchingRatio
+      HEP.Data.THDM.Coupling
+      HEP.Data.THDM.DecayWidth
+      HEP.Data.THDM.DecayWidth.H2
+      HEP.Data.THDM.DecayWidth.Hp
+      HEP.Data.THDM.Model
+      Paths_h2decays
+  hs-source-dirs:
+      lib
+  ghc-options: -Wall -Wcompat -O2 -funbox-strict-fields
+  cxx-options: -g -O2 -m64 -Wall -Wextra -pedantic -fPIC
+  cxx-sources:
+      csrc/alphas.cc
+  extra-libraries:
+      gsl
+      gslcblas
+      LHAPDF
+      stdc++
+  build-depends:
+      base >=4.12.0.0 && <5
+    , blaze-builder
+    , bytestring
+    , double-conversion
+    , hmatrix-gsl
+    , pipes
+    , pipes-bytestring
+    , vector
+  default-language: Haskell2010
 
 executable h2decays
-  import:              exec
-  main-is:             h2decays.hs
+  main-is: h2decays.hs
+  other-modules:
+      Paths_h2decays
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -O2 -funbox-strict-fields
+  build-depends:
+      base >=4.12.0.0 && <5
+    , bytestring
+    , h2decays
+    , optparse-generic
+    , pipes
+    , vector
+  default-language: Haskell2010
 
 executable hpdecays
-  import:              exec
-  main-is:             hpdecays.hs
+  main-is: hpdecays.hs
+  other-modules:
+      Paths_h2decays
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -O2 -funbox-strict-fields
+  build-depends:
+      base >=4.12.0.0 && <5
+    , bytestring
+    , h2decays
+    , optparse-generic
+    , pipes
+    , vector
+  default-language: Haskell2010
