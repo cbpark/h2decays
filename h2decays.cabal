@@ -4,11 +4,11 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e8388d8339d60f1c3a35c903e4fa73824bad4888cc1a129fc01901a4dce17984
+-- hash: 915b5d54e57514abd3a233653dd42a207f329de1454d4df033679ff90f188193
 
 name:           h2decays
 version:        0.0.0.0
-synopsis:       Calculating decay widths and branching ratios of the heavy Higgs boson in the 2HDM
+synopsis:       Calculating the branching ratios of heavy Higgs bosons in the 2HDM
 category:       Physics
 homepage:       https://github.com/cbpark/h2decays#readme
 bug-reports:    https://github.com/cbpark/h2decays/issues
