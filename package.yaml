@@ -34,7 +34,6 @@ library:
     - blaze-builder
     - double-conversion
     - hmatrix-gsl
-    - pipes-bytestring
 
 executables:
   h2decays:

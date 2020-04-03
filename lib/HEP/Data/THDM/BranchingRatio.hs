@@ -9,9 +9,9 @@ import           HEP.Data.THDM.Model
 
 import           Blaze.ByteString.Builder          (toByteString)
 import           Data.ByteString.Builder
+import           Data.ByteString.Char8             (hPutStrLn)
 import           Data.Double.Conversion.ByteString (toExponential, toFixed)
 import           Pipes
-import           Pipes.ByteString                  (toHandle)
 import qualified Pipes.Prelude                     as P
 
 import           Control.Monad                     (forever)
@@ -166,5 +166,5 @@ space = stringUtf8 " "
 endLine :: Builder
 endLine = charUtf8 '\n'
 
-printBR :: MonadIO m => Handle -> Consumer Builder m ()
-printBR h = P.map toByteString >-> toHandle h
+printBR :: Handle -> Consumer Builder IO ()
+printBR h = for (P.map toByteString) (lift . hPutStrLn h)
