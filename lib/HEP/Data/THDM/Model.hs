@@ -3,6 +3,7 @@
 module HEP.Data.THDM.Model
     (
       InputParam (..)
+    , paramToArgs
     , renderInputParamH2
     , renderInputParamHp
     , DecayWidth
@@ -23,6 +24,17 @@ data InputParam = InputParam { _mdtyp :: THDMType
                              , _mHp   :: Mass
                              , _angs  :: Angles
                              } deriving Show
+
+paramToArgs :: InputParam -> [String]
+paramToArgs InputParam {..} = let tanb = tanBeta _angs
+                                  cosba = cosBetaAlpha _angs
+                              in [ "--mtype", show _mdtyp
+                                 , "--mS",    show _mS
+                                 , "--mH",    show _mH
+                                 , "--mA",    show _mA
+                                 , "--mHp",   show _mHp
+                                 , "--tanb",  show tanb
+                                 , "--cosba", show cosba ]
 
 renderInputParamH2 :: InputParam -> Builder
 renderInputParamH2 InputParam {..} =
