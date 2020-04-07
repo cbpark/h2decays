@@ -23,7 +23,12 @@ import Data.Hashable       (Hashable)
 
 import GHC.Generics        (Generic)
 
-data THDMType = TypeI | TypeII | UnknownType deriving (Eq, Generic, Show)
+data THDMType = TypeI | TypeII | UnknownType deriving (Eq, Generic)
+
+instance Show THDMType where
+    show mdtyp | mdtyp == TypeI  = "1"
+               | mdtyp == TypeII = "2"
+               | otherwise       = "0"
 
 instance Hashable THDMType
 
