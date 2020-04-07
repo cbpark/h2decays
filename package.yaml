@@ -37,8 +37,6 @@ library:
     - double-conversion
     - hashable
     - hmatrix-gsl
-    - pipes-attoparsec
-    - transformers
 
 executables:
   h2decays:

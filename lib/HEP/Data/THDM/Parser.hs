@@ -1,29 +1,26 @@
-module HEP.Data.THDM.Parser (parseBRH2, parseBRH2') where
+module HEP.Data.THDM.Parser (parseBRH2) where
 
-import           HEP.Data.Kinematics              (Mass (..))
-import           HEP.Data.THDM.BranchingRatio     (BRH2 (..))
-import           HEP.Data.THDM.Coupling           (THDMType (..))
-import           HEP.Data.THDM.Model              (InputParam (..))
-import           HEP.Data.Util                    (mkAngles)
+import HEP.Data.Kinematics              (Mass (..))
+import HEP.Data.THDM.BranchingRatio     (BRH2 (..))
+import HEP.Data.THDM.Coupling           (THDMType (..))
+import HEP.Data.THDM.Model              (InputParam (..))
+import HEP.Data.Util                    (mkAngles)
 
-import           Control.Monad.Trans.State.Strict (StateT (..))
-import           Data.Attoparsec.ByteString       (skipWhile)
-import           Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
-import           Data.ByteString.Char8            (ByteString)
-import           Pipes
-import qualified Pipes.Attoparsec                 as PA
+import Data.Attoparsec.ByteString       (skipWhile)
+import Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
 
-import           Control.Applicative              ((<|>))
+import Control.Applicative              ((<|>))
+import Control.Monad                    (void)
 
-parseBRH2 :: Monad m
-          => Producer ByteString m () -> Producer (InputParam, BRH2) m ()
-parseBRH2 s = do (r, s') <- lift $ runStateT (PA.parse parseBRH2') s
-                 case r of
-                     Just (Right br) -> yield br >> parseBRH2 s'
-                     _               -> return ()
+-- parseBRH2 :: Monad m
+--           => Producer ByteString m () -> Producer (InputParam, BRH2) m ()
+-- parseBRH2 s = do (r, s') <- lift $ runStateT (PA.parse parseBRH2') s
+--                  case r of
+--                      Just (Right br) -> yield br >> parseBRH2 s'
+--                      _               -> return ()
 
-parseBRH2' :: Parser (InputParam, BRH2)
-parseBRH2' = do
+parseBRH2 :: Parser (InputParam, BRH2)
+parseBRH2 = do
     skipComment >> skipSpace
     inp <- parseInputParamH2 <* skipSpace
     totalWidth <- double <* skipSpace

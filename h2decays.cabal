@@ -4,7 +4,7 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c367304248516a4959c034c6630c9a3842137676dac822e74b4364a311e25def
+-- hash: 01d703298c30360f36002ddc2b4f97fa6c43382c37f97014960c89dfe9a983dd
 
 name:           h2decays
 version:        0.0.0.0
@@ -62,8 +62,6 @@ library
     , hashable
     , hmatrix-gsl
     , pipes
-    , pipes-attoparsec
-    , transformers
     , vector
   default-language: Haskell2010
 
