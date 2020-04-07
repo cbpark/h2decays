@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module HEP.Data.THDM.Coupling
     (
       gHUU
@@ -6,7 +8,10 @@ module HEP.Data.THDM.Coupling
     , gHhh
     , gHHpHm
     , gHpUD
+
     , THDMType (..)
+    , fromIntToType
+
     , HffCoupling
     ) where
 
@@ -14,7 +19,19 @@ import HEP.Data.Constants  (gW, mW, mh2, sqrt2)
 import HEP.Data.Kinematics (Mass (..), massRatio, massSq)
 import HEP.Data.Util
 
-data THDMType = TypeI | TypeII | UnknownType deriving (Eq, Show)
+import Data.Hashable       (Hashable)
+
+import GHC.Generics        (Generic)
+
+data THDMType = TypeI | TypeII | UnknownType deriving (Eq, Generic, Show)
+
+instance Hashable THDMType
+
+fromIntToType :: Int -> THDMType
+fromIntToType n | n == 1    = TypeI
+                | n == 2    = TypeII
+                | otherwise = UnknownType
+{-# INLINE fromIntToType #-}
 
 gHff :: (Double -> Double)  -- ^ a function to get the coefficient
      -> Angles

@@ -35,6 +35,7 @@ library:
     - attoparsec
     - blaze-builder
     - double-conversion
+    - hashable
     - hmatrix-gsl
     - pipes-attoparsec
     - transformers

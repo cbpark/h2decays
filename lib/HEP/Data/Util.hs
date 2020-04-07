@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module HEP.Data.Util
     (
       Angles
@@ -17,7 +19,13 @@ module HEP.Data.Util
 import Data.Vector             (Vector, generate)
 import Numeric.GSL.Integration (integrateQAGS)
 
-newtype Angles = Angles (Double, Double) deriving Show
+import Data.Hashable           (Hashable)
+
+import GHC.Generics            (Generic)
+
+newtype Angles = Angles (Double, Double) deriving (Generic, Show)
+
+instance Hashable Angles
 
 mkAngles :: Double -> Double -> Angles
 mkAngles tanb cosba = Angles (tanb, cosba)

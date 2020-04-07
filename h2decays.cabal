@@ -4,7 +4,7 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e3b4225aa05f41cffa211fcc5311f460c3158a359ee69f3fc0a0e0150d6deddc
+-- hash: c367304248516a4959c034c6630c9a3842137676dac822e74b4364a311e25def
 
 name:           h2decays
 version:        0.0.0.0
@@ -59,6 +59,7 @@ library
     , blaze-builder
     , bytestring
     , double-conversion
+    , hashable
     , hmatrix-gsl
     , pipes
     , pipes-attoparsec

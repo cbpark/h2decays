@@ -1,8 +1,15 @@
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module HEP.Data.Kinematics where
 
-newtype Mass = Mass { getMass :: Double } deriving (Eq, Ord, Num)
+import Data.Hashable (Hashable)
+
+import GHC.Generics  (Generic)
+
+newtype Mass = Mass { getMass :: Double } deriving (Eq, Generic, Ord, Num)
+
+instance Hashable Mass
 
 instance Show Mass where
     show = show . getMass

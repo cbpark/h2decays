@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric   #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module HEP.Data.THDM.Model
@@ -16,6 +17,9 @@ import HEP.Data.Util                     (Angles, cosBetaAlpha, tanBeta)
 
 import Data.ByteString.Builder
 import Data.Double.Conversion.ByteString (toFixed)
+import Data.Hashable                     (Hashable)
+
+import GHC.Generics                      (Generic)
 
 data InputParam = InputParam { _mdtyp :: THDMType
                              , _mS    :: Mass
@@ -23,7 +27,9 @@ data InputParam = InputParam { _mdtyp :: THDMType
                              , _mA    :: Mass
                              , _mHp   :: Mass
                              , _angs  :: Angles
-                             } deriving Show
+                             } deriving (Generic, Show)
+
+instance Hashable InputParam
 
 paramToArgs :: InputParam -> [String]
 paramToArgs InputParam {..} = let tanb = tanBeta _angs
