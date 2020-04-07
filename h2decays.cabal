@@ -4,7 +4,7 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 21cf6436eb4583a24a678ae00b2d626a023184128bb6413644629fef9a00c66e
+-- hash: d15c48e0ba904c4ced8761261ae1f6229c5014deed8b7d300d3a6d3a3c27f392
 
 name:           h2decays
 version:        0.0.0.0
@@ -31,6 +31,7 @@ library
       HEP.Data.Kinematics
       HEP.Data.Util
       HEP.Data.THDM
+      HEP.Data.THDM.Parser
   other-modules:
       HEP.Data.Constants
       HEP.Data.Quark
@@ -53,7 +54,8 @@ library
       LHAPDF
       stdc++
   build-depends:
-      base >=4.12.0.0 && <5
+      attoparsec
+    , base >=4.12.0.0 && <5
     , blaze-builder
     , bytestring
     , double-conversion

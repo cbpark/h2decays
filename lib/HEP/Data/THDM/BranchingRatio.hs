@@ -1,7 +1,13 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE RecordWildCards       #-}
 
-module HEP.Data.THDM.BranchingRatio (getBRH2, getBRHp, printBR) where
+module HEP.Data.THDM.BranchingRatio
+    (
+      BRH2 (..)
+    , getBRH2
+    , getBRHp
+    , printBR
+    ) where
 
 import           HEP.Data.AlphaS                   (AlphaS)
 import           HEP.Data.THDM.DecayWidth
@@ -31,7 +37,7 @@ data BRH2 = BRH2 { _totalWidth :: Double
                  , _h2HpHm     :: Double
                  , _h2HpmW     :: Double
                  , _h2AZ       :: Double
-                 }
+                 } deriving Show
 
 -- getBRH2 :: MonadIO m => AlphaS -> InputParam -> m Builder
 -- getBRH2 as inp = renderBRH2 inp <$> brH2 as inp

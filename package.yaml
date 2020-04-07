@@ -22,6 +22,7 @@ library:
     - HEP.Data.Kinematics
     - HEP.Data.Util
     - HEP.Data.THDM
+    - HEP.Data.THDM.Parser
   source-dirs: lib
   cxx-sources: csrc/alphas.cc
   cxx-options: -g -O2 -m64 -Wall -Wextra -pedantic -fPIC
@@ -31,6 +32,7 @@ library:
     - LHAPDF
     - stdc++
   dependencies:
+    - attoparsec
     - blaze-builder
     - double-conversion
     - hmatrix-gsl
