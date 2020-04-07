@@ -13,6 +13,8 @@ import           Data.ByteString.Char8            (ByteString)
 import           Pipes
 import qualified Pipes.Attoparsec                 as PA
 
+import           Control.Applicative              ((<|>))
+
 parseBRH2 :: Monad m
           => Producer ByteString m () -> Producer (InputParam, BRH2) m ()
 parseBRH2 s = do (r, s') <- lift $ runStateT (PA.parse parseBRH2') s
@@ -68,7 +70,7 @@ parseInputParamH2 = do
 
     let mdtyp | mdtypV == '1' = TypeI
               | mdtypV == '2' = TypeII
-              | otherwise     = UnknownType
+              | otherwise   = UnknownType
 
     return $ InputParam { _mdtyp = mdtyp
                         , _mS    = Mass mS
@@ -78,5 +80,5 @@ parseInputParamH2 = do
                         , _angs  = mkAngles tanb cosba }
 
 skipComment :: Parser ()
-skipComment = void $ many' (char '#' >> skipTillEnd)
+skipComment = void $ many' ((char '#' <|> char '-') >> skipTillEnd)
   where skipTillEnd = skipWhile (not . isEndOfLine) >> endOfLine
