@@ -20,7 +20,7 @@ import           Pipes                 (each, runEffect, (>->))
 import           Control.Monad         (when)
 import           Data.Maybe            (fromMaybe)
 import           System.Exit           (die)
-import           System.IO             (IOMode (..), withFile)
+import           System.IO             (IOMode (..), stdout, withFile)
 
 main :: IO ()
 main = do
@@ -54,12 +54,14 @@ main = do
 
     putStrLn "-- Calculating the branching ratios of the heavy Higgs boson..."
 
-    let outfile = fromMaybe "output_h2.dat" (output input)
-    withFile outfile WriteMode $ \h -> do
-        hPutStrLn h header
-        runEffect $ each inps >-> getBRH2 as >-> printBR h
+    let writeOutput h = runEffect $ each inps >-> getBRH2 as >-> printBR h
 
-    putStrLn $ "-- " ++ outfile ++ " generated."
+    case output input of
+        Nothing      -> writeOutput stdout
+        Just outfile -> do withFile outfile WriteMode $ \h -> do
+                               hPutStrLn h header
+                               writeOutput h
+                           putStrLn $ "-- " ++ outfile ++ " generated."
 
 data InputArgs w = InputArgs
     { mtype    :: w ::: Maybe Int    <?> "model type (either 1 or 2)"

@@ -15,7 +15,7 @@ import           HEP.Data.THDM.Model
 
 import           Blaze.ByteString.Builder          (toByteString)
 import           Data.ByteString.Builder
-import           Data.ByteString.Char8             (hPutStrLn)
+import           Data.ByteString.Char8             (hPutStr)
 import           Data.Double.Conversion.ByteString (toExponential, toFixed)
 import           Pipes
 import qualified Pipes.Prelude                     as P
@@ -173,4 +173,4 @@ endLine :: Builder
 endLine = charUtf8 '\n'
 
 printBR :: Handle -> Consumer Builder IO ()
-printBR h = for (P.map toByteString) (lift . hPutStrLn h)
+printBR h = for (P.map toByteString) (lift . hPutStr h)
