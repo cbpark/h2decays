@@ -1,6 +1,7 @@
-{ mkDerivation, base, blaze-builder, bytestring, double-conversion
-, gsl, hmatrix-gsl, hpack, lhapdf, optparse-generic
-, pipes, stdenv, vector
+{ mkDerivation, attoparsec, base, blaze-builder, bytestring
+, double-conversion, gsl, hmatrix-gsl, hpack, lhapdf
+, optparse-generic, pipes, pipes-attoparsec, stdenv, transformers
+, vector
 }:
 mkDerivation {
   pname = "h2decays";
@@ -9,8 +10,8 @@ mkDerivation {
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
-    base blaze-builder bytestring double-conversion hmatrix-gsl pipes
-    vector
+    attoparsec base blaze-builder bytestring double-conversion
+    hmatrix-gsl pipes pipes-attoparsec transformers vector
   ];
   librarySystemDepends = [ gsl lhapdf ];
   libraryToolDepends = [ hpack ];
