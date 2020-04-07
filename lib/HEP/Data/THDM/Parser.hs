@@ -1,40 +1,27 @@
-module HEP.Data.THDM.Parser where
+module HEP.Data.THDM.Parser (parseBRH2, parseBRH2') where
 
-import HEP.Data.Kinematics              (Mass (..))
-import HEP.Data.THDM.BranchingRatio     (BRH2 (..))
-import HEP.Data.THDM.Coupling           (THDMType (..))
-import HEP.Data.THDM.Model              (InputParam (..))
-import HEP.Data.Util                    (mkAngles)
+import           HEP.Data.Kinematics              (Mass (..))
+import           HEP.Data.THDM.BranchingRatio     (BRH2 (..))
+import           HEP.Data.THDM.Coupling           (THDMType (..))
+import           HEP.Data.THDM.Model              (InputParam (..))
+import           HEP.Data.Util                    (mkAngles)
 
-import Data.Attoparsec.ByteString       (skipWhile)
-import Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
+import           Control.Monad.Trans.State.Strict (StateT (..))
+import           Data.Attoparsec.ByteString       (skipWhile)
+import           Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
+import           Data.ByteString.Char8            (ByteString)
+import           Pipes
+import qualified Pipes.Attoparsec                 as PA
 
-import Control.Monad                    (void)
+parseBRH2 :: Monad m
+          => Producer ByteString m () -> Producer (InputParam, BRH2) m ()
+parseBRH2 s = do (r, s') <- lift $ runStateT (PA.parse parseBRH2') s
+                 case r of
+                     Just (Right br) -> yield br >> parseBRH2 s'
+                     _               -> return ()
 
-parseInputParamH2 :: Parser InputParam
-parseInputParamH2 = do
-    skipSpace
-    mdtypV <- digit  <* skipSpace
-    mS     <- double <* skipSpace
-    mH     <- double <* skipSpace
-    mA     <- double <* skipSpace
-    mHp    <- double <* skipSpace
-    tanb   <- double <* skipSpace
-    cosba  <- double
-
-    let mdtyp | mdtypV == '1' = TypeI
-              | mdtypV == '2' = TypeII
-              | otherwise     = UnknownType
-
-    return $ InputParam { _mdtyp = mdtyp
-                        , _mS    = Mass mS
-                        , _mH    = Mass mH
-                        , _mA    = Mass mA
-                        , _mHp   = Mass mHp
-                        , _angs  = mkAngles tanb cosba }
-
-parseBRH2 :: Parser (InputParam, BRH2)
-parseBRH2 = do
+parseBRH2' :: Parser (InputParam, BRH2)
+parseBRH2' = do
     skipComment >> skipSpace
     inp <- parseInputParamH2 <* skipSpace
     totalWidth <- double <* skipSpace
@@ -67,6 +54,28 @@ parseBRH2 = do
                   , _h2HpmW     = h2HpmW
                   , _h2AZ       = h2AZ }
     return (inp, br)
+
+parseInputParamH2 :: Parser InputParam
+parseInputParamH2 = do
+    skipSpace
+    mdtypV <- digit  <* skipSpace
+    mS     <- double <* skipSpace
+    mH     <- double <* skipSpace
+    mA     <- double <* skipSpace
+    mHp    <- double <* skipSpace
+    tanb   <- double <* skipSpace
+    cosba  <- double
+
+    let mdtyp | mdtypV == '1' = TypeI
+              | mdtypV == '2' = TypeII
+              | otherwise     = UnknownType
+
+    return $ InputParam { _mdtyp = mdtyp
+                        , _mS    = Mass mS
+                        , _mH    = Mass mH
+                        , _mA    = Mass mA
+                        , _mHp   = Mass mHp
+                        , _angs  = mkAngles tanb cosba }
 
 skipComment :: Parser ()
 skipComment = void $ many' (char '#' >> skipTillEnd)

@@ -36,6 +36,8 @@ library:
     - blaze-builder
     - double-conversion
     - hmatrix-gsl
+    - pipes-attoparsec
+    - transformers
 
 executables:
   h2decays:
