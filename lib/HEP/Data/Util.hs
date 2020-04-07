@@ -5,6 +5,7 @@ module HEP.Data.Util
       Angles
     , mkAngles
     , tanBeta
+    , sin2Beta
     , tan2Beta
     , cosBetaAlpha
     , sinBetaAlpha
@@ -34,6 +35,10 @@ mkAngles tanb cosba = Angles (tanb, cosba)
 tanBeta :: Angles -> Double
 tanBeta (Angles (tanb, _)) = tanb
 {-# INLINE tanBeta #-}
+
+sin2Beta :: Angles -> Double
+sin2Beta (Angles (tanb, _)) = 2 * tanb / (1 + tanb * tanb)
+{-# INLINE sin2Beta #-}
 
 tan2Beta :: Angles -> Double
 tan2Beta (Angles (tanb, _)) = 2 * tanb / (1 - tanb * tanb)
