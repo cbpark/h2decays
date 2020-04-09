@@ -56,3 +56,8 @@ Available options:
   --stepsize DOUBLE        step size (default: 0.5)
   --output STRING          the name of the output file
 ```
+
+## References
+
+* A. Djouadi, J. Kalinowski, P.M. Zerwas, Two- and Three-Body Decay Modes of SUSY Higgs Particles, [arXiv:hep-ph/9511342](https://arxiv.org/abs/hep-ph/9511342).
+* A. Djouadi, The Anatomy of Electro-Weak Symmetry Breaking. II: The Higgs bosons in the Minimal Supersymmetric Model, [arXiv:hep-ph/0503173](https://arxiv.org/abs/hep-ph/0503173).
