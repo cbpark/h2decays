@@ -12,13 +12,6 @@ import Data.Attoparsec.ByteString.Char8 hiding (skipWhile)
 import Control.Applicative              ((<|>))
 import Control.Monad                    (void)
 
--- parseBRH2 :: Monad m
---           => Producer ByteString m () -> Producer (InputParam, BRH2) m ()
--- parseBRH2 s = do (r, s') <- lift $ runStateT (PA.parse parseBRH2') s
---                  case r of
---                      Just (Right br) -> yield br >> parseBRH2 s'
---                      _               -> return ()
-
 parseBRH2 :: Parser (InputParam, BRH2)
 parseBRH2 = do
     skipComment >> skipSpace
@@ -58,10 +51,10 @@ parseInputParamH2 :: Parser InputParam
 parseInputParamH2 = do
     skipSpace
     mdtypV <- digit  <* skipSpace
-    mS     <- double <* skipSpace
     mH     <- double <* skipSpace
     mA     <- double <* skipSpace
     mHp    <- double <* skipSpace
+    m12    <- double <* skipSpace
     tanb   <- double <* skipSpace
     cosba  <- double
 
@@ -70,10 +63,10 @@ parseInputParamH2 = do
               | otherwise   = UnknownType
 
     return $ InputParam { _mdtyp = mdtyp
-                        , _mS    = Mass mS
                         , _mH    = Mass mH
                         , _mA    = Mass mA
                         , _mHp   = Mass mHp
+                        , _m12   = Mass m12
                         , _angs  = mkAngles tanb cosba }
 
 skipComment :: Parser ()

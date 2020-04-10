@@ -20,7 +20,7 @@ import           Pipes                 (each, runEffect, (>->))
 import           Control.Monad         (when)
 import           Data.Maybe            (fromMaybe)
 import           System.Exit           (die)
-import           System.IO             (IOMode (..), withFile)
+import           System.IO             (IOMode (..), stdout, withFile)
 
 main :: IO ()
 main = do
@@ -30,11 +30,11 @@ main = do
         mdtypVal | mdtyp == 1 = TypeI
                  | mdtyp == 2 = TypeII
                  | otherwise  = UnknownType
-    when (mdtypVal == UnknownType) $ die "The type must be either 1 or 2."
+    when (mdtypVal == UnknownType) $ die "-- The type must be either 1 or 2."
 
     let step = fromMaybe 0.5 (stepsize input)
-        (mHpVals, _) = mkPoints step (mHp input)
         (tanbVal, cosbaVal) = (,) <$> tanb <*> cosba $ input
+        (mHpVals, _) = mkPoints step (mHp input)
 
     putStrLn $ "-- tan(beta) = " ++ show tanbVal
         ++ ", cos(beta - alpha) = " ++ show cosbaVal
@@ -42,21 +42,22 @@ main = do
     as <- initAlphaS
     let inps = V.map (\mHpVal -> InputParam
                                  { _mdtyp = mdtypVal
-                                 , _mS    = Mass 0
                                  , _mH    = Mass 0
                                  , _mA    = Mass 0
                                  , _mHp   = Mass mHpVal
+                                 , _m12   = Mass 0
                                  , _angs  = mkAngles tanbVal cosbaVal
                                  }) mHpVals
 
     putStrLn "-- Calculating the branching ratios of the charged Higgs boson..."
 
-    let outfile = fromMaybe "output_hp.dat" (output input)
-    withFile outfile WriteMode $ \h -> do
-        hPutStrLn h header
-        runEffect $ each inps >-> getBRHp as >-> printBR h
-
-    putStrLn $ "-- " ++ outfile ++ " generated."
+    let writeOutput h = runEffect $ each inps >-> getBRHp as >-> printBR h
+    case output input of
+        Nothing      -> writeOutput stdout
+        Just outfile -> do withFile outfile WriteMode $ \h -> do
+                               hPutStrLn h header
+                               writeOutput h
+                           putStrLn $ "-- " ++ outfile ++ " generated."
 
 data InputArgs w = InputArgs
     { mtype    :: w ::: Maybe Int    <?> "model type (either 1 or 2)"

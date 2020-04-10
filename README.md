@@ -26,16 +26,17 @@ See [`default.nix`](./default.nix) and [`release.nix`](./release.nix) for buildi
 $ h2decays --help
 Calculate the branching ratio of heavy Higgs boson
 
-Usage: h2decays [--mtype INT] [--mH DOUBLE]... --mHp DOUBLE [--mS DOUBLE]
-                --tanb DOUBLE --cosba DOUBLE [--stepsize DOUBLE]
+Usage: h2decays [--mtype INT] [--mH DOUBLE...] [--mA DOUBLE] --mHp DOUBLE
+                [--m12 DOUBLE] --tanb DOUBLE --cosba DOUBLE [--stepsize DOUBLE]
                 [--output STRING]
 
 Available options:
   -h,--help                Show this help text
   --mtype INT              model type (either 1 or 2)
   --mH DOUBLE...           heavy Higgs mass
+  --mA DOUBLE              CP-odd Higgs mass
   --mHp DOUBLE             charged Higgs mass
-  --mS DOUBLE              heavy mass scale (m_A if MSSM)
+  --m12 DOUBLE             soft Z2 breaking term
   --tanb DOUBLE            tan(beta)
   --cosba DOUBLE           cos(beta-alpha)
   --stepsize DOUBLE        step size (default: 0.5)
@@ -45,6 +46,9 @@ $ hpdecays --help
 Calculate the branching ratio of charged Higgs boson
 
 Usage: hpdecays [--mtype INT] [--mHp DOUBLE]... --tanb DOUBLE --cosba DOUBLE
+                [--stepsize DOUBLE] [--output STRING]
+
+Usage: hpdecays [--mtype INT] [--mHp DOUBLE...] --tanb DOUBLE --cosba DOUBLE
                 [--stepsize DOUBLE] [--output STRING]
 
 Available options:

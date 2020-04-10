@@ -69,12 +69,12 @@ gHLL :: HffCoupling
 gHLL = gHDD
 
 gHhh :: Mass  -- ^ m_H
-     -> Mass  -- ^ m_A
+     -> Mass  -- ^ m_{12}
      -> Angles
      -> Double
-gHhh mH mS angs =
+gHhh mH m12 angs =
     let mH2  = massSq mH
-        mS2  = massSq mS
+        mS2  = 0.5 * massSq m12 * sin2Beta angs
 
         [tan2b, cosba, sinba] = ($ angs) <$>
                                 [tan2Beta, cosBetaAlpha, sinBetaAlpha]
@@ -84,14 +84,14 @@ gHhh mH mS angs =
             + 2 * cosba * (sinba / tan2b - cosba) * (3 * mS2 - mH2 - 2 * mh2))
 
 gHHpHm :: Mass  -- ^ m_H
-       -> Mass  -- ^ m_A
        -> Mass  -- ^ m_{H+}
+       -> Mass  -- ^ m_{12}
        -> Angles
        -> Double
-gHHpHm mH mS mHp angs =
+gHHpHm mH mHp m12 angs =
     let mH2  = massSq mH
-        mS2  = massSq mS
         mHp2 = massSq mHp
+        mS2  = 0.5 * massSq m12 * sin2Beta angs
 
         [tan2b, cosba, sinba] = ($ angs) <$>
                                 [tan2Beta, cosBetaAlpha, sinBetaAlpha]
