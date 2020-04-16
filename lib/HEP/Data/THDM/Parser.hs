@@ -28,6 +28,7 @@ parseBRH2 = do
     h2GG       <- double <* skipSpace
     h2hh       <- double <* skipSpace
     h2HpHm     <- double <* skipSpace
+    h2AA       <- double <* skipSpace
     h2HpmW     <- double <* skipSpace
     h2AZ       <- double <* endOfLine
 
@@ -43,6 +44,7 @@ parseBRH2 = do
                   , _h2GG       = h2GG
                   , _h2hh       = h2hh
                   , _h2HpHm     = h2HpHm
+                  , _h2AA       = h2AA
                   , _h2HpmW     = h2HpmW
                   , _h2AZ       = h2AZ }
     return (inp, br)

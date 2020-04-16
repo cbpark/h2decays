@@ -16,6 +16,7 @@ module HEP.Data.THDM.DecayWidth.H2
     , h2HpHm
     , h2HpWm
     , h2AZ
+    , h2AA
     ) where
 
 import HEP.Data.AlphaS        (alphasQ)
@@ -298,6 +299,9 @@ h2HpHm3body as inp =
                                  , h2HpMuNu  as inp
                                  , h2HpWh    as inp
                                  ])
+
+h2AA :: MonadIO m => DecayWidth m
+h2AA as inp@InputParam { _mA = mA } = (0.5*) <$> h2HpHm2body as (inp { _mHp = mA})
 
 -- | H --> H^+ (H^-* --> t b)
 h2HpTB :: MonadIO m => DecayWidth m

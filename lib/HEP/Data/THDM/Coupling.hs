@@ -7,6 +7,7 @@ module HEP.Data.THDM.Coupling
     , gHLL
     , gHhh
     , gHHpHm
+    , gHAA
     , gHpUD
 
     , THDMType (..)
@@ -98,6 +99,13 @@ gHHpHm mH mHp m12 angs =
 
         c = gW / (2 * getMass mW)
     in c * (cosba * (mH2 + 2 * (mHp2 - mS2)) - 2 * sinba / tan2b * (mH2 - mS2))
+
+gHAA :: Mass  -- ^ m_H
+     -> Mass  -- ^ m_A
+     -> Mass  -- ^ m_{12}
+     -> Angles
+     -> Double
+gHAA = gHHpHm
 
 gHpUD :: THDMType
       -> Mass  -- ^ m_U
