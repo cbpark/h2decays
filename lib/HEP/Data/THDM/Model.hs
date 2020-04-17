@@ -5,7 +5,8 @@ module HEP.Data.THDM.Model
     (
       InputParam (..)
     , defaultM12
-    , paramToArgs
+    , paramToArgsH2
+    , paramToArgsHp
     , renderInputParamH2
     , renderInputParamHp
 
@@ -43,16 +44,24 @@ defaultM12 tanb mH
     | otherwise          = let sin2b = sin2Beta (mkAngles tanb 0)
                            in sqrt2 * mH / sqrt sin2b
 
-paramToArgs :: InputParam -> [String]
-paramToArgs InputParam {..} = let tanb  = tanBeta      _angs
-                                  cosba = cosBetaAlpha _angs
-                              in [ "--mtype", show _mdtyp
-                                 , "--mH",    show _mH
-                                 , "--mA",    show _mA
-                                 , "--mHp",   show _mHp
-                                 , "--m12",   show _m12
-                                 , "--tanb",  show tanb
-                                 , "--cosba", show cosba ]
+paramToArgsH2 :: InputParam -> [String]
+paramToArgsH2 InputParam {..} = let tanb  = tanBeta      _angs
+                                    cosba = cosBetaAlpha _angs
+                                in [ "--mtype", show _mdtyp
+                                   , "--mH",    show _mH
+                                   , "--mA",    show _mA
+                                   , "--mHp",   show _mHp
+                                   , "--m12",   show _m12
+                                   , "--tanb",  show tanb
+                                   , "--cosba", show cosba ]
+
+paramToArgsHp :: InputParam -> [String]
+paramToArgsHp InputParam {..} = let tanb  = tanBeta      _angs
+                                    cosba = cosBetaAlpha _angs
+                                in [ "--mtype", show _mdtyp
+                                   , "--mHp",   show _mHp
+                                   , "--tanb",  show tanb
+                                   , "--cosba", show cosba ]
 
 renderInputParamH2 :: InputParam -> Builder
 renderInputParamH2 InputParam {..} =
