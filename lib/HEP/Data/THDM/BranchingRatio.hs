@@ -5,7 +5,10 @@ module HEP.Data.THDM.BranchingRatio
     (
       BRH2 (..)
     , getBRH2
+
+    , BRHp (..)
     , getBRHp
+
     , printBR
     ) where
 
@@ -23,21 +26,21 @@ import qualified Pipes.Prelude                     as P
 import           Control.Monad                     (forever)
 import           System.IO                         (Handle)
 
-data BRH2 = BRH2 { _totalWidth :: Double
-                 , _h2TT       :: Double
-                 , _h2BB       :: Double
-                 , _h2CC       :: Double
-                 , _h2TauTau   :: Double
-                 , _h2MuMu     :: Double
-                 , _h2WW       :: Double
-                 , _h2ZZ       :: Double
-                 , _h2GaGa     :: Double
-                 , _h2GG       :: Double
-                 , _h2hh       :: Double
-                 , _h2HpHm     :: Double
-                 , _h2AA       :: Double
-                 , _h2HpmW     :: Double
-                 , _h2AZ       :: Double
+data BRH2 = BRH2 { _totalWidthH2 :: Double
+                 , _h2TT         :: Double
+                 , _h2BB         :: Double
+                 , _h2CC         :: Double
+                 , _h2TauTau     :: Double
+                 , _h2MuMu       :: Double
+                 , _h2WW         :: Double
+                 , _h2ZZ         :: Double
+                 , _h2GaGa       :: Double
+                 , _h2GG         :: Double
+                 , _h2hh         :: Double
+                 , _h2HpHm       :: Double
+                 , _h2AA         :: Double
+                 , _h2HpmW       :: Double
+                 , _h2AZ         :: Double
                  } deriving Show
 
 -- getBRH2 :: MonadIO m => AlphaS -> InputParam -> m Builder
@@ -56,7 +59,7 @@ renderBRH2 inp brh2 = renderInputParamH2 inp <> space <> renderBRH2' brh2
         <> foldr1 (<>) (replicate 14 (space <> convDbl 0))
         <> endLine
     renderBRH2' (Just BRH2 {..}) =
-        (byteString . toFixed 4) _totalWidth
+        (byteString . toFixed 4) _totalWidthH2
         <> space <> convDbl _h2TT
         <> space <> convDbl _h2BB
         <> space <> convDbl _h2CC
@@ -75,20 +78,20 @@ renderBRH2 inp brh2 = renderInputParamH2 inp <> space <> renderBRH2' brh2
 
 brH2 :: MonadIO m => AlphaS -> InputParam -> m (Maybe BRH2)
 brH2 as inp = do
-    gamH2TT       <- h2TT     as inp
-    gamH2BB       <- h2BB     as inp
-    gamH2CC       <- h2CC     as inp
-    gamH2TauTau   <- h2TauTau as inp
-    gamH2MuMu     <- h2MuMu   as inp
-    gamH2WW       <- h2WW     as inp
-    gamH2ZZ       <- h2ZZ     as inp
-    gamH2GaGa     <- h2GaGa   as inp
-    gamH2GG       <- h2GG     as inp
-    gamH2hh       <- h2hh     as inp
-    gamH2HpHm     <- h2HpHm   as inp
-    gamH2AA       <- h2AA     as inp
-    gamH2HpWm     <- h2HpWm   as inp
-    gamH2AZ       <- h2AZ     as inp
+    gamH2TT     <- h2TT     as inp
+    gamH2BB     <- h2BB     as inp
+    gamH2CC     <- h2CC     as inp
+    gamH2TauTau <- h2TauTau as inp
+    gamH2MuMu   <- h2MuMu   as inp
+    gamH2WW     <- h2WW     as inp
+    gamH2ZZ     <- h2ZZ     as inp
+    gamH2GaGa   <- h2GaGa   as inp
+    gamH2GG     <- h2GG     as inp
+    gamH2hh     <- h2hh     as inp
+    gamH2HpHm   <- h2HpHm   as inp
+    gamH2AA     <- h2AA     as inp
+    gamH2HpWm   <- h2HpWm   as inp
+    gamH2AZ     <- h2AZ     as inp
 
     let gamH2HpmW  = 2 * gamH2HpWm  -- BR(H --> H+ W-) + BR(H --> H- W+)
         totalWidth = sum [ gamH2TT, gamH2BB, gamH2CC , gamH2TauTau, gamH2MuMu
@@ -99,30 +102,30 @@ brH2 as inp = do
 
     return $ if totalWidth <= 0  -- what happened?
              then Nothing
-             else Just $ BRH2 { _totalWidth = totalWidth
-                              , _h2TT       = gamH2TT     / totalWidth
-                              , _h2BB       = gamH2BB     / totalWidth
-                              , _h2CC       = gamH2CC     / totalWidth
-                              , _h2TauTau   = gamH2TauTau / totalWidth
-                              , _h2MuMu     = gamH2MuMu   / totalWidth
-                              , _h2WW       = gamH2WW     / totalWidth
-                              , _h2ZZ       = gamH2ZZ     / totalWidth
-                              , _h2GaGa     = gamH2GaGa   / totalWidth
-                              , _h2GG       = gamH2GG     / totalWidth
-                              , _h2hh       = gamH2hh     / totalWidth
-                              , _h2HpHm     = gamH2HpHm   / totalWidth
-                              , _h2AA       = gamH2AA     / totalWidth
-                              , _h2HpmW     = gamH2HpmW   / totalWidth
-                              , _h2AZ       = gamH2AZ     / totalWidth
+             else Just $ BRH2 { _totalWidthH2 = totalWidth
+                              , _h2TT         = gamH2TT     / totalWidth
+                              , _h2BB         = gamH2BB     / totalWidth
+                              , _h2CC         = gamH2CC     / totalWidth
+                              , _h2TauTau     = gamH2TauTau / totalWidth
+                              , _h2MuMu       = gamH2MuMu   / totalWidth
+                              , _h2WW         = gamH2WW     / totalWidth
+                              , _h2ZZ         = gamH2ZZ     / totalWidth
+                              , _h2GaGa       = gamH2GaGa   / totalWidth
+                              , _h2GG         = gamH2GG     / totalWidth
+                              , _h2hh         = gamH2hh     / totalWidth
+                              , _h2HpHm       = gamH2HpHm   / totalWidth
+                              , _h2AA         = gamH2AA     / totalWidth
+                              , _h2HpmW       = gamH2HpmW   / totalWidth
+                              , _h2AZ         = gamH2AZ     / totalWidth
                               }
 
-data BRHp = BRHp { _totalWidth :: Double
-                 , _hpTB       :: Double
-                 , _hpCS       :: Double
-                 , _hpTauNu    :: Double
-                 , _hpMuNu     :: Double
-                 , _hpWh       :: Double
-                 }
+data BRHp = BRHp { _totalWidthHp :: Double
+                 , _hpTB         :: Double
+                 , _hpCS         :: Double
+                 , _hpTauNu      :: Double
+                 , _hpMuNu       :: Double
+                 , _hpWh         :: Double
+                 } deriving Show
 
 -- getBRHp :: MonadIO m => AlphaS -> InputParam -> m Builder
 -- getBRHp as inp = renderBRHp inp <$> brHp as inp
@@ -140,7 +143,7 @@ renderBRHp inp brhp = renderInputParamHp inp <> space <> renderBRHp' brhp
         <> foldr1 (<>) (replicate 5 (space <> convDbl 0))
         <> endLine
     renderBRHp' (Just BRHp {..}) =
-        (byteString . toFixed 4) _totalWidth
+        (byteString . toFixed 4) _totalWidthHp
         <> space <> convDbl _hpTB
         <> space <> convDbl _hpCS
         <> space <> convDbl _hpTauNu
@@ -159,12 +162,12 @@ brHp as inp = do
     let totalWidth = sum [gamHpTB, gamHpCS, gamHpTauNu, gamHpMuNu, gamHpWh]
     return $ if totalWidth <= 0
              then Nothing
-             else Just $ BRHp { _totalWidth = totalWidth
-                              , _hpTB       = gamHpTB    / totalWidth
-                              , _hpCS       = gamHpCS    / totalWidth
-                              , _hpTauNu    = gamHpTauNu / totalWidth
-                              , _hpMuNu     = gamHpMuNu  / totalWidth
-                              , _hpWh       = gamHpWh    / totalWidth
+             else Just $ BRHp { _totalWidthHp = totalWidth
+                              , _hpTB         = gamHpTB    / totalWidth
+                              , _hpCS         = gamHpCS    / totalWidth
+                              , _hpTauNu      = gamHpTauNu / totalWidth
+                              , _hpMuNu       = gamHpMuNu  / totalWidth
+                              , _hpWh         = gamHpWh    / totalWidth
                               }
 
 convDbl :: Double -> Builder
