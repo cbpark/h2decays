@@ -1,10 +1,10 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 01d703298c30360f36002ddc2b4f97fa6c43382c37f97014960c89dfe9a983dd
+-- hash: 431314e7569119b57f0f6f10964504fe364d15c2e01bffd08f1a243161f4ddd2
 
 name:           h2decays
 version:        0.0.0.0
@@ -28,12 +28,12 @@ source-repository head
 library
   exposed-modules:
       HEP.Data.AlphaS
+      HEP.Data.Constants
       HEP.Data.Kinematics
       HEP.Data.Util
       HEP.Data.THDM
       HEP.Data.THDM.Parser
   other-modules:
-      HEP.Data.Constants
       HEP.Data.Quark
       HEP.Data.THDM.BranchingRatio
       HEP.Data.THDM.Coupling

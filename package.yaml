@@ -19,6 +19,7 @@ dependencies:
 library:
   exposed-modules:
     - HEP.Data.AlphaS
+    - HEP.Data.Constants
     - HEP.Data.Kinematics
     - HEP.Data.Util
     - HEP.Data.THDM
